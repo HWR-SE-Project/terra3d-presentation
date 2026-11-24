@@ -10,7 +10,7 @@ import { clamp, smallestAngle } from '../utilities/maths.js'
  * vehicle (`position`, `velocity`, `forward`, `speed`, `xzSpeed`,
  * `forwardSpeed`, `yRotation`, `moveTo`, `activate`/`deactivate` and a
  * `chassis.physical.body` reference) so that world systems (camera, foliage,
- * leaves, tornado, explosions, areas, title) keep working unchanged.
+ * leaves, explosions, areas) keep working unchanged.
  *
  * The physics body stays upright (rotations locked) and only translates. The
  * facing direction (`yRotation`) is computed from the movement input and is

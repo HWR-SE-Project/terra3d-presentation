@@ -1,7 +1,5 @@
 # Folio 2025
 
-![image info](./static/social/share-image.png)
-
 ## Setup
 
 Create `.env` file based on `.env.example`
@@ -32,7 +30,7 @@ npm run build
 
 #### 2
 
-- PhysicalVehicle:pre-physics (Player:pre-physics)
+- PhysicsCharacter:pre-physics (Player:pre-physics)
 
 #### 3
 
@@ -45,11 +43,11 @@ npm run build
 
 #### 5
 
-- PhysicalVehicle:post-physics (Player:pre-physics)
+- PhysicsCharacter:post-physics (Player:pre-physics)
 
 #### 6
 
-- Player:post-physics (Physics, PhysicalVehicle:post-physics)
+- Player:post-physics (Physics, PhysicsCharacter:post-physics)
 
 #### 7
 
@@ -61,39 +59,33 @@ npm run build
 - DayCycles
 - YearCycles
 - Weather (DayCycles, YearCycles)
-- Zones (Player:post-physics)
-- VisualVehicle (PhysicalVehicle:post-physics, Inputs, Player:post-physics, View)
+- VisualCharacter (PhysicsCharacter:post-physics, Inputs, Player:post-physics, View)
 
 #### 9
 
 - Wind (Weather)
 - Lighting (DayCycles, View)
-- Tornado (DayCycles, PhysicalVehicle)
-- InteractivePoints (Player:post-physics)
-- Tracks (VisualVehicle)
+- Tracks (VisualCharacter)
 
 #### 10
 
-- Area++ (View, PhysicalVehicle:post-physics, Player:post-physics, Wind)
-- Foliage (VisualVehicle, View)
+- Area++ (View, PhysicsCharacter:post-physics, Player:post-physics, Wind)
+- Foliage (VisualCharacter, View)
 - Fog (View)
 - Reveal (DayCycles)
 - Terrain (Tracks)
-- Trails (PhysicalVehicle)
 - Floor (View)
 - Grass (View, Wind)
-- Leaves (View, PhysicalVehicle)
+- Leaves (View, PhysicsCharacter)
 - Lightnings (View, Weather)
 - RainLines (View, Weather, Reveal)
 - Snow (View, Weather, Reveal, Tracks)
-- VisualTornado (Tornado)
 - WaterSurface (Weather, View)
 - Benches (Objects)
 - Bricks (Objects)
 - ExplosiveCrates (Objects)
 - Fences (Objects)
 - Lanterns (Objects)
-- Whispers (Player)
 
 #### 13
 
@@ -102,16 +94,10 @@ npm run build
 #### 14
 
 - Audio (View, Objects)
-- Notifications
-- Title (PhysicalVehicle:post-physics)
 
 #### 998
 
 - Rendering
-
-#### 999
-
-- Monitoring
 
 ## Blender
 
