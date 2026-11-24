@@ -330,7 +330,8 @@ export class Materials
                 alphaNode: alphaNode,
                 hasCoreShadows: true,
                 hasDropShadows: true,
-                transparent: transparent
+                transparent: transparent,
+                side: baseMaterial.side ?? THREE.FrontSide
             })
             material.premultipliedAlpha = premultipliedAlpha
             material.map = baseMaterial.map

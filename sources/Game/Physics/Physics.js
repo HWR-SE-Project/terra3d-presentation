@@ -157,6 +157,8 @@ export class Physics
                 colliderDescription = colliderDescription.ball(..._colliderDescription.parameters)
             if(_colliderDescription.shape === 'cylinder')
                 colliderDescription = colliderDescription.cylinder(..._colliderDescription.parameters)
+            else if(_colliderDescription.shape === 'capsule')
+                colliderDescription = colliderDescription.capsule(..._colliderDescription.parameters)
             else if(_colliderDescription.shape === 'trimesh')
                 colliderDescription = colliderDescription.trimesh(..._colliderDescription.parameters)
             else if(_colliderDescription.shape === 'hull')

@@ -69,7 +69,6 @@ export class Leaves
         this.waterDamping = uniform(0.75)
         this.gravity = uniform(9.807)
         this.explosion = uniform(vec4(0))
-        this.tornado = uniform(vec4(0))
 
         // Buffers
         this.positionBuffer = instancedArray(this.count, 'vec3')
@@ -209,23 +208,6 @@ export class Leaves
             
             velocity.addAssign(vec3(explosionPush.x, 0, explosionPush.y))
 
-            // //Tornado
-            // const toTornado = this.tornado.sub(position)
-            // const tornadoDistance = toTornado.length()
-            // const strength = remapClamp(tornadoDistance, 20, 2, 0, 1)
-            // const sideAngleStrength = remapClamp(tornadoDistance, 8, 2, 0, Math.PI * 0.25)
-
-            // const force = toTornado.clone().normalize()
-
-            // const sideAngleStrength = remapClamp(tornadoDistance, 8, 2, 0, Math.PI * 0.25)
-            // force.applyAxisAngle(new THREE.Vector3(0, 1, 0), -sideAngleStrength)
-
-            // const flyForce = remapClamp(tornadoDistance, 8, 2, 0, 1)
-            // force.y = flyForce * 2
-
-            // force.setLength(strength * this.game.ticker.deltaScaled * this.game.tornado.strength * 30)
-            // this.chassis.physical.body.applyImpulse(force)
-
             // Upward fly
             const upwardDim = position.y.remapClamp(0, 6, 1, 0)
             velocity.y = velocity.xz.length().min(2).mul(this.upwardMultiplier).mul(upwardDim)
@@ -296,8 +278,8 @@ export class Leaves
     {
         this.focusPoint.value.set(this.game.view.optimalArea.position.x, this.game.view.optimalArea.position.z)
 
-        this.vehicleVelocity.value.copy(this.game.physicalVehicle.velocity)
-        this.vehiclePosition.value.copy(this.game.physicalVehicle.position)
+        this.vehicleVelocity.value.copy(this.game.physicalCharacter.velocity)
+        this.vehiclePosition.value.copy(this.game.physicalCharacter.position)
         this.game.rendering.renderer.computeAsync(this.updateCompute)
 
         this.explosion.value.w = 0 // Reset potential explosion

@@ -141,9 +141,6 @@ export class ExplosiveCrates
             this.game.objects.disable(crate.object)
             crate.object.visual.object3D.position.y += 100 // Hide the instance reference
             crate.object.visual.object3D.needsUpdate = true
-
-            // Achievements
-            this.game.achievements.setProgress('explosiveCrates', crate.id)
         })
     }
 

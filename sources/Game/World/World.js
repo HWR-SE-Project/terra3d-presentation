@@ -10,9 +10,7 @@ import { WindLines } from './WindLines.js'
 import { Leaves } from './Leaves.js'
 import { Lightnings } from './Lightnings.js'
 import { Snow } from './Snow.js'
-import { Whispers } from './Whispers.js'
-import { VisualVehicle } from './VisualVehicle.js'
-import { VisualTornado } from './VisualTornado.js'
+import { VisualCharacter } from './VisualCharacter.js'
 import { Flowers } from './Flowers.js'
 import { Bricks } from './Bricks.js'
 import { Trees } from './Trees.js'
@@ -21,7 +19,6 @@ import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
 import { Fireballs } from './Fireballs.js'
 import { ExplosiveCrates } from './ExplosiveCrates.js'
 import { RainLines } from './RainLines.js'
-import { Confetti } from './Confetti.js'
 import { Intro } from './Intro.js'
 import { PoleLights } from './PoleLights.js'
 import { Lanterns } from './Lanterns.js'
@@ -53,18 +50,16 @@ export class World
         }
         else if(step === 1)
         {
-            this.visualVehicle = new VisualVehicle(this.game.resources.vehicle.scene)
+            this.visualCharacter = new VisualCharacter(this.game.resources.character)
             this.floor = new Floor()
             this.waterSurface = new WaterSurface()
             this.grass = new Grass()
             this.windLines = new WindLines()
-            this.confetti = new Confetti()
             this.leaves = new Leaves()
             this.rain = new RainLines()
             this.lightnings = new Lightnings()
             this.fireballs = new Fireballs()
             this.snow = new Snow()
-            this.visualTornado = new VisualTornado()
             this.bushes = new Bushes()
             this.birchTrees = new Trees('Birch Tree', this.game.resources.birchTreesVisualModel.scene, this.game.resources.birchTreesReferencesModel.scene.children, '#ff4f2b', '#ff903f')
             this.oakTrees = new Trees('Oak Tree', this.game.resources.oakTreesVisualModel.scene, this.game.resources.oakTreesReferencesModel.scene.children, '#b4b536', '#d8cf3b')
@@ -78,10 +73,6 @@ export class World
             this.lanterns = new Lanterns()
             this.scenery = new Scenery()
             this.areas = new Areas()
-        }
-        else if(step === 2)
-        {
-            this.whispers = new Whispers()
         }
     }
 

@@ -212,7 +212,7 @@ export class Foliage
 
     update()
     {
-        this.material.seeThroughPosition.value.copy(this.game.world.visualVehicle.screenPosition)
+        this.material.seeThroughPosition.value.copy(this.game.world.visualCharacter.screenPosition)
 
         this.material.seeThroughEdgeMin.value = 3 / this.game.view.spherical.radius.current * this.seeThroughMultiplier
         this.material.seeThroughEdgeMax.value = 15 / this.game.view.spherical.radius.current * this.seeThroughMultiplier

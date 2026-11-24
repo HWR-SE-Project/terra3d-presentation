@@ -52,7 +52,7 @@ export class Explosions
                 })
 
                 // Is vehicle
-                if(physicalObject === this.game.physicalVehicle.chassis.physical)
+                if(physicalObject === this.game.physicalCharacter.chassis.physical)
                 {
                     if(finalStrength > bulletTimeStrengthThreshold)
                     {
@@ -68,7 +68,7 @@ export class Explosions
 
         let vehicleHit = false
         if(vehicleOnly)
-            vehicleHit = applyPhysicsExplosion(this.game.physicalVehicle.chassis.physical)
+            vehicleHit = applyPhysicsExplosion(this.game.physicalCharacter.chassis.physical)
         else
             this.game.objects.list.forEach((object) =>
             {

@@ -12,7 +12,6 @@ import { View } from './View.js'
 import { Viewport } from './Viewport.js'
 import { World } from './World/World.js'
 import { Tracks } from './Tracks.js'
-// import { Monitoring } from './Monitoring.js'
 import { Lighting } from './Ligthing.js'
 import { Materials } from './Materials.js'
 import { Objects } from './Objects.js'
@@ -24,30 +23,16 @@ import { Wind } from './Wind.js'
 import { Terrain } from './Terrain.js'
 import { Explosions } from './Explosions.js'
 import { YearCycles } from './Cycles/YearCycles.js'
-import { Server } from './Server.js'
-import { Modals } from './Modals.js'
-import { PhysicsVehicle } from './Physics/PhysicsVehicle.js'
+import { PhysicsCharacter } from './Physics/PhysicsCharacter.js'
 import { PhysicsWireframe } from './Physics/PhysicsWireframe.js'
-import { Zones } from './Zones.js'
 import { Overlay } from './Overlay.js'
-import { Tornado } from './Tornado.js'
-import { InteractivePoints } from './InteractivePoints.js'
 import { Respawns } from './Respawns.js'
 import { Audio } from './Audio.js'
-import { ClosingManager } from './ClosingManager.js'
 import { RayCursor } from './RayCursor.js'
 import { Water } from './Water.js'
 import { Reveal } from './Reveal.js'
-import { KonamiCode } from './KonamiCode.js'
-import { Achievements } from './Achievements.js'
-import { Notifications } from './Notifications.js'
 import { Quality } from './Quality.js'
-import { Menu } from './Menu.js'
-import { Title } from './Title.js'
 import { PreRenderer } from './PreRenderer.js'
-import { Options } from './Options.js'
-import gsap from 'gsap'
-import { Map } from './Map.js'
 
 export class Game
 {
@@ -79,18 +64,14 @@ export class Game
         this.debug = new Debug()
         this.resourcesLoader = new ResourcesLoader()
         this.quality = new Quality()
-        this.server = new Server()
         this.ticker = new Ticker()
         this.time = new Time()
         this.dayCycles = new DayCycles()
         this.yearCycles = new YearCycles()
         this.inputs = new Inputs([], [ 'intro' ])
         this.audio = new Audio()
-        this.notifications = new Notifications()
         this.rayCursor = new RayCursor()
         this.viewport = new Viewport(this.domElement)
-        this.modals = new Modals()
-        this.menu = new Menu()
         this.rendering = new Rendering()
         await this.rendering.setRenderer()
 
@@ -102,12 +83,10 @@ export class Game
         const cb = '?cb=1'
         this.resources = await this.resourcesLoader.load([
             [ 'respawnsReferencesModel',    `respawns/respawnsReferences${compressedModelSuffix}.glb${cb}`, 'gltf' ],
-            [ 'behindTheSceneStarsTexture', `behindTheScene/stars.${compressedTextureExtension}${cb}`,      compressedTextureFormat, (resource) => { resource.colorSpace = THREE.SRGBColorSpace; resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false; resource.wrapS = THREE.RepeatWrapping; resource.wrapT = THREE.RepeatWrapping; } ],
             [ 'soundTexture',               `intro/sound.${compressedTextureExtension}${cb}`,               compressedTextureFormat, (resource) => { resource.minFilter = THREE.LinearFilter; resource.magFilter = THREE.LinearFilter; resource.generateMipmaps = false; resource.repeat.x = 0.5; } ],
             [ 'paletteTexture',             `palette.${compressedTextureExtension}${cb}`,                   compressedTextureFormat, (resource) => { resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false; resource.colorSpace = THREE.SRGBColorSpace; } ],
 
         ])
-        this.options = new Options()
         this.respawns = new Respawns(import.meta.env.VITE_PLAYER_SPAWN || 'landing')
         this.view = new View()
         this.rendering.setPostprocessing()
@@ -133,9 +112,7 @@ export class Game
             [
                 [ 'foliageTexture',                        `foliage/foliageSDF.${compressedTextureExtension}${cb}`,                              compressedTextureFormat, (resource) => { resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false; } ],
                 [ 'bushesReferences',                      `bushes/bushesReferences${compressedModelSuffix}.glb${cb}`,                           'gltf' ],
-                [ 'vehicle',                               `vehicle/default${compressedModelSuffix}.glb${cb}`,                                   'gltf' ],
-                [ 'playgroundVisual',                      `playground/playgroundVisual${compressedModelSuffix}.glb${cb}`,                       'gltf' ],
-                [ 'playgroundPhysical',                    `playground/playgroundPhysical${compressedModelSuffix}.glb${cb}`,                     'gltf' ],
+                [ 'character',                             `character/puppet-kid.glb${cb}`,                                                        'gltf' ],
                 [ 'flowersReferencesModel',                `flowers/flowersReferences${compressedModelSuffix}.glb${cb}`,                         'gltf' ],
                 [ 'bricksModel',                           `bricks/bricks${compressedModelSuffix}.glb${cb}`,                                     'gltf' ],
                 [ 'fencesModel',                           `fences/fences${compressedModelSuffix}.glb${cb}`,                                     'gltf' ],
@@ -154,23 +131,7 @@ export class Game
                 [ 'sceneryModel',                          `scenery/scenery${compressedModelSuffix}.glb${cb}`,                                   'gltf' ],
                 [ 'areasModel',                            `areas/areas${compressedModelSuffix}.glb${cb}`,                                       'gltf' ],
                 [ 'poleLightsModel',                       `poleLights/poleLights${compressedModelSuffix}.glb${cb}`,                             'gltf' ],
-                [ 'whisperFlameTexture',                   `whispers/whisperFlame.${compressedTextureExtension}${cb}`,                           compressedTextureFormat, (resource) => { resource.minFilter = THREE.LinearFilter; resource.magFilter = THREE.LinearFilter; resource.generateMipmaps = false } ],
-                [ 'satanStarTexture',                      `areas/satanStar.${compressedTextureExtension}${cb}`,                                 compressedTextureFormat, (resource) => { resource.minFilter = THREE.LinearFilter; resource.magFilter = THREE.LinearFilter; resource.generateMipmaps = false } ],
-                [ 'tornadoPathReferencesModel',            `tornado/tornadoPathReferences${compressedModelSuffix}.glb${cb}`,                     'gltf' ],
                 [ 'overlayPatternTexture',                 `overlay/overlayPattern.${compressedTextureExtension}${cb}`,                          compressedTextureFormat, (resource) => { resource.wrapS = THREE.RepeatWrapping; resource.wrapT = THREE.RepeatWrapping; resource.magFilter = THREE.NearestFilter; resource.minFilter = THREE.NearestFilter; resource.generateMipmaps = false } ],
-                [ 'interactivePointsKeyIconCrossTexture',  `interactivePoints/interactivePointsKeyIconCross.${compressedTextureExtension}${cb}`, compressedTextureFormat, (resource) => { resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false } ],
-                [ 'interactivePointsKeyIconEnterTexture',  `interactivePoints/interactivePointsKeyIconEnter.${compressedTextureExtension}${cb}`, compressedTextureFormat, (resource) => { resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false } ],
-                [ 'interactivePointsKeyIconATexture',      `interactivePoints/interactivePointsKeyIconA.${compressedTextureExtension}${cb}`,     compressedTextureFormat, (resource) => { resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false } ],
-                [ 'jukeboxMusicNotes',                     `jukebox/jukeboxMusicNotes.${compressedTextureExtension}${cb}`,                       compressedTextureFormat, (resource) => { resource.minFilter = THREE.LinearFilter; resource.magFilter = THREE.LinearFilter; resource.generateMipmaps = false } ],
-                [ 'achievementsGlyphsTexture',             `achievements/glyphs.${compressedTextureExtension}${cb}`,                             compressedTextureFormat, (resource) => { resource.minFilter = THREE.LinearFilter; resource.magFilter = THREE.LinearFilter; resource.generateMipmaps = false; resource.wrapS = THREE.RepeatWrapping; } ],
-                [ 'careerFreelancerTexture',               `career/careerFreelancer.${compressedTextureExtension}${cb}`,                         compressedTextureFormat, (resource) => { resource.flipY = false; resource.minFilter = THREE.LinearFilter; resource.magFilter = THREE.LinearFilter; resource.generateMipmaps = false; resource.wrapS = THREE.ClampToEdgeWrapping; resource.wrapT = THREE.ClampToEdgeWrapping; } ],
-                [ 'careerHeticTexture',                    `career/careerHetic.${compressedTextureExtension}${cb}`,                              compressedTextureFormat, (resource) => { resource.flipY = false; resource.minFilter = THREE.LinearFilter; resource.magFilter = THREE.LinearFilter; resource.generateMipmaps = false; resource.wrapS = THREE.ClampToEdgeWrapping; resource.wrapT = THREE.ClampToEdgeWrapping; } ],
-                [ 'careerImmersiveGardenTexture',          `career/careerImmersiveGarden.${compressedTextureExtension}${cb}`,                    compressedTextureFormat, (resource) => { resource.flipY = false; resource.minFilter = THREE.LinearFilter; resource.magFilter = THREE.LinearFilter; resource.generateMipmaps = false; resource.wrapS = THREE.ClampToEdgeWrapping; resource.wrapT = THREE.ClampToEdgeWrapping; } ],
-                [ 'careerIRLTeacherTexture',               `career/careerIRLTeacher.${compressedTextureExtension}${cb}`,                         compressedTextureFormat, (resource) => { resource.flipY = false; resource.minFilter = THREE.LinearFilter; resource.magFilter = THREE.LinearFilter; resource.generateMipmaps = false; resource.wrapS = THREE.ClampToEdgeWrapping; resource.wrapT = THREE.ClampToEdgeWrapping; } ],
-                [ 'careerOnlineTeacherTexture',            `career/careerOnlineTeacher.${compressedTextureExtension}${cb}`,                      compressedTextureFormat, (resource) => { resource.flipY = false; resource.minFilter = THREE.LinearFilter; resource.magFilter = THREE.LinearFilter; resource.generateMipmaps = false; resource.wrapS = THREE.ClampToEdgeWrapping; resource.wrapT = THREE.ClampToEdgeWrapping; } ],
-                [ 'careerUzikTexture',                     `career/careerUzik.${compressedTextureExtension}${cb}`,                               compressedTextureFormat, (resource) => { resource.flipY = false; resource.minFilter = THREE.LinearFilter; resource.magFilter = THREE.LinearFilter; resource.generateMipmaps = false; resource.wrapS = THREE.ClampToEdgeWrapping; resource.wrapT = THREE.ClampToEdgeWrapping; } ],
-                [ 'timeMachineScreenMGSTexture',           `timeMachine/timeMachineScreenMGS.${compressedTextureExtension}${cb}`,                compressedTextureFormat, (resource) => { resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false; resource.wrapS = THREE.ClampToEdgeWrapping; resource.wrapT = THREE.ClampToEdgeWrapping; resource.colorSpace = THREE.SRGBColorSpace; } ],
-                [ 'timeMachineScreenFolioTexture',         `timeMachine/timeMachineScreenFolio.${compressedTextureExtension}${cb}`,              compressedTextureFormat, (resource) => { resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false; resource.wrapS = THREE.ClampToEdgeWrapping; resource.wrapT = THREE.ClampToEdgeWrapping; resource.colorSpace = THREE.SRGBColorSpace; } ],
             ],
             (toLoad, total) =>
             {
@@ -185,17 +146,8 @@ export class Game
         this.terrain = new Terrain()
         this.physics = new Physics()
         this.wireframe = new PhysicsWireframe()
-        this.physicalVehicle = new PhysicsVehicle()
-        this.zones = new Zones()
+        this.physicalCharacter = new PhysicsCharacter()
         this.player = new Player()
-        this.closingManager = new ClosingManager()
-        this.interactivePoints = new InteractivePoints()
-        this.konamiCode = new KonamiCode()
-        this.achievements = new Achievements()
-        this.tornado = new Tornado()
-        this.map = new Map()
-        this.title = new Title()
-        // this.monitoring = new Monitoring()
         this.world.step(1)
         this.overlay = new Overlay()
 
@@ -207,19 +159,10 @@ export class Game
         {
             this.reveal.updateStep(0)
         })
-
-        // Debug achievement
-        if(this.debug.active)
-        {
-            this.achievements.setProgress('debug', 1)
-        }
     }
 
     reset()
     {
-        // Interactive buttons
-        this.inputs.interactiveButtons.clearItems()
-
         // Player respawn
         this.player.respawn(null, () =>
         {
@@ -230,25 +173,6 @@ export class Game
             if(this.world.explosiveCrates)
                 this.world.explosiveCrates.reset()
 
-            // Bowling
-            if(this.world.areas.bowling)
-                this.world.areas.bowling.restart()
-
-            // Cookie
-            if(this.world.areas.cookie)
-                this.world.areas.cookie.cookies.instancedGroup.needsUpdate = true
-
-            // Toilet
-            if(this.world.areas.toilet)
-                this.world.areas.toilet.cabin.down = false
-
-            // Social
-            if(this.world.areas.social)
-            {
-                this.world.areas.social.statue.down = false
-                this.world.areas.social.fans.instancedGroup.needsUpdate = true
-            }
-            
             // Benches
             if(this.world.benches)
                 this.world.benches.instancedGroup.needsUpdate = true
@@ -264,12 +188,6 @@ export class Game
             // Lanterns
             if(this.world.lanterns)
                 this.world.lanterns.instancedGroup.needsUpdate = true
-
-            // Achievement
-            gsap.delayedCall(2, () =>
-            {
-                this.achievements.setProgress('reset', 1)
-            })
         })
     }
 }

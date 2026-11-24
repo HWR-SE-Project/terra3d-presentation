@@ -16,7 +16,6 @@ export class Area
         this.references = new References()
 
         this.setObjects()
-        this.setBounding()
         this.setFrustum()
 
         this.game.ticker.events.on('tick', () =>
@@ -67,38 +66,6 @@ export class Area
 
             this.references.parse(child)
         }
-    }
-
-    setBounding()
-    {
-        let zoneReference = this.references.items.get('zoneBounding')
-
-        if(!zoneReference)
-            return
-
-        zoneReference = zoneReference[0]
-        
-        const position = zoneReference.position.clone()
-        const radius = zoneReference.scale.x
-        const zone = this.game.zones.create('cylinder', position, radius)
-
-        zone.events.on(
-            'enter',
-            () =>
-            {
-                this.isIn = true
-                this.events.trigger('boundingIn')
-            }
-        )
-
-        zone.events.on(
-            'leave',
-            () =>
-            {
-                this.isIn = false
-                this.events.trigger('boundingOut')
-            }
-        )
     }
 
     setFrustum()

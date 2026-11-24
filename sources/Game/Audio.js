@@ -216,22 +216,6 @@ export class Audio
 
                 this.playlist.current.sound.play()
 
-                // Notification
-                const html = /* html */`
-                    <div class="top">
-                        <div class="title">Now playing<br /><span class="song-name">${this.playlist.current.name}</span></div>
-                        <div class="music-note-icon"></div>
-                    </div>
-                `
-
-                this.game.notifications.show(
-                    html,
-                    'song',
-                    5,
-                    // () => {
-                    // }
-                )
-                
                 this.playlist.switching = false
             })
         }
@@ -465,48 +449,6 @@ export class Audio
                 item.volume = Math.pow(remapClamp(distanceToSide, 0, 40, 1, 0.1), 2) * 0.7
             }
         })
-
-        // Oven fire (Project Area + Cookie Area)
-        {
-            const positions = []
-            if(this.game.world.areas?.cookie)
-                positions.push(this.game.world.areas.cookie.references.items.get('spawner')[0].position)
-            if(this.game.world.areas?.projects)
-                positions.push(this.game.world.areas.projects.references.items.get('oven')[0].position)
-
-            if(positions.length)
-            {
-                this.game.audio.register({
-                    group: 'ovenFire',
-                    path: 'sounds/fire/Mountain Audio - Fire Burning in a Wood Stove 1.mp3',
-                    autoplay: true,
-                    loop: true,
-                    volume: 0.8,
-                    positions: positions,
-                    distanceFade: 13,
-                })
-            }
-        }
-
-        // Campfire (Lab Area + Bonfire Area)
-        {
-            const positions = []
-            if(this.game.world.areas?.lab)
-                positions.push(this.game.world.areas.lab.references.items.get('fire')[0].position)
-
-            if(positions.length)
-            {
-                this.game.audio.register({
-                    group: 'campfire',
-                    path: 'sounds/fire/Fire Burning.mp3',
-                    autoplay: true,
-                    loop: true,
-                    volume: 1,
-                    positions: positions,
-                    distanceFade: 13,
-                })
-            }
-        }
     }
 
     setOneOffs()

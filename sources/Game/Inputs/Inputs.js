@@ -3,7 +3,6 @@ import { Game } from '../Game.js'
 import { Gamepad } from './Gamepad.js'
 import { Pointer } from './Pointer.js'
 import Keyboard from './Keyboard.js'
-import { InteractiveButtons } from './InteractiveButtons.js'
 import { Wheel } from './Wheel.js'
 import { Nipple } from './Nipple.js'
 import ObservableSet from '../utilities/ObservableSet.js'
@@ -44,7 +43,6 @@ export class Inputs
         this.setGamepad()
         this.setPointer()
         this.setWheel()
-        this.setInteractiveButtons()
         this.setNipple()
 
         this.addActions(actions)
@@ -143,11 +141,6 @@ export class Inputs
             this.updateMode(Inputs.MODE_MOUSEKEYBOARD)
             this.start('Wheel.roll', value, false)
         })
-    }
-
-    setInteractiveButtons()
-    {
-        this.interactiveButtons = new InteractiveButtons()
     }
 
     setNipple()
@@ -307,11 +300,6 @@ export class Inputs
         const oldMode = this.mode
         this.mode = mode
         
-        if(this.mode === Inputs.MODE_TOUCH)
-            this.interactiveButtons.activate()
-        else
-            this.interactiveButtons.deactivate()
-
         const modeClasses = [
             null,
             'mouse-keyboard',
