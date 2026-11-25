@@ -26,6 +26,7 @@ import { Fences } from './Fences.js'
 import { Benches } from './Benches.js'
 import { Scenery } from './Scenery.js'
 import { Boundary } from './Boundary.js'
+import { ZoneIdentity } from './ZoneIdentity.js'
 
 export class World
 {
@@ -74,6 +75,7 @@ export class World
             this.lanterns = new Lanterns()
             this.scenery = new Scenery()
             this.areas = new Areas()
+            this.zoneIdentity = new ZoneIdentity()
             this.boundary = new Boundary()
         }
     }
