@@ -27,7 +27,6 @@ export class Audio
     {
         this.initiated = true
 
-        this.setPlaylist()
         this.setAmbiants()
         this.setOneOffs()
 
@@ -142,100 +141,6 @@ export class Audio
         group.items.push(item)
 
         return item
-    }
-
-    setPlaylist()
-    {
-        this.playlist = {}
-        this.playlist.songs = [
-            {
-                path: 'sounds/musics/Sudo.mp3',
-                name: 'Sudo.mp3'
-            },
-            {
-                path: 'sounds/musics/Boy.mp3',
-                name: 'Boy.mp3'
-            },
-            {
-                path: 'sounds/musics/Baguira.mp3',
-                name: 'Baguira.mp3'
-            },
-        ]
-        this.playlist.index = (Math.floor(Date.now() / 1000 / 60 / 3) % this.playlist.songs.length) // Different music every X minutes
-        // this.playlist.index = -1 // Different music every X minutes
-        this.playlist.current = null
-        this.playlist.switching = false
-
-        for(const song of this.playlist.songs)
-        {
-            song.loaded = false
-            song.sound = new Howl({
-                src: [ song.path ],
-                pool: 0,
-                autoplay: false,
-                loop: false,
-                preload: false,
-                volume: 0.2,
-                onend: () =>
-                {
-                    this.playlist.next()
-                }
-            })
-        }
-
-        this.playlist.next = () =>
-        {
-            if(this.playlist.switching)
-                return
-
-            this.playlist.switching = true
-
-            // Disc change sound
-            this.game.audio.groups.get('discChange').play()
-
-            // Old one
-            if(this.playlist.current)
-            {
-                this.playlist.current.sound.stop()
-            }
-            
-            gsap.delayedCall(3, () =>
-            {
-                this.playlist.index++
-
-                if(this.playlist.index >= this.playlist.songs.length)
-                    this.playlist.index = 0
-
-                // New one
-                this.playlist.current = this.playlist.songs[this.playlist.index]
-
-                if(!this.playlist.current.loaded)
-                {
-                    this.playlist.current.sound.load()
-                }
-
-                this.playlist.current.sound.play()
-
-                this.playlist.switching = false
-            })
-        }
-
-        this.playlist.play = () =>
-        {
-            this.playlist.current = this.playlist.songs[this.playlist.index]
-
-            if(!this.playlist.current.loaded)
-            {
-                this.playlist.current.sound.load()
-            }
-
-            this.playlist.current.sound.play()
-        }
-
-        if(import.meta.env.VITE_MUSIC)
-        {
-            this.playlist.play()
-        }
     }
 
     setAmbiants()
@@ -454,14 +359,6 @@ export class Audio
     setOneOffs()
     {
         this.register({
-            group: 'discChange',
-            path: 'sounds/jukebox/DVDPlayerChangeDisc_BW.49824.mp3',
-            autoplay: false,
-            loop: false,
-            volume: 0.3,
-        })
-        
-        this.register({
             group: 'slide',
             path: 'sounds/mecanism/slide.mp3',
             autoplay: false,
@@ -634,9 +531,6 @@ export class Audio
         window.addEventListener('blur', () =>
         {
             Howler.mute(true)
-
-            if(this.playlist?.current)
-                this.playlist.current.sound.pause()
         })
 
         window.addEventListener('focus', () =>
@@ -644,9 +538,6 @@ export class Audio
             if(!this.mute.active)
             {
                 Howler.mute(false)
-
-                if(this.playlist?.current)
-                    this.playlist.current.sound.play()
             }
         })
 
