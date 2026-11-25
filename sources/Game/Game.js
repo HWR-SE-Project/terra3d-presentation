@@ -33,6 +33,7 @@ import { Water } from './Water.js'
 import { Reveal } from './Reveal.js'
 import { Quality } from './Quality.js'
 import { PreRenderer } from './PreRenderer.js'
+import { PresentationController } from './Presentation/PresentationController.js'
 
 export class Game
 {
@@ -83,7 +84,6 @@ export class Game
         const cb = '?cb=1'
         this.resources = await this.resourcesLoader.load([
             [ 'respawnsReferencesModel',    `respawns/respawnsReferences${compressedModelSuffix}.glb${cb}`, 'gltf' ],
-            [ 'soundTexture',               `intro/sound.${compressedTextureExtension}${cb}`,               compressedTextureFormat, (resource) => { resource.minFilter = THREE.LinearFilter; resource.magFilter = THREE.LinearFilter; resource.generateMipmaps = false; resource.repeat.x = 0.5; } ],
             [ 'paletteTexture',             `palette.${compressedTextureExtension}${cb}`,                   compressedTextureFormat, (resource) => { resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false; resource.colorSpace = THREE.SRGBColorSpace; } ],
 
         ])
@@ -151,6 +151,7 @@ export class Game
         this.player = new Player()
         this.world.step(1)
         this.overlay = new Overlay()
+        this.presentation = new PresentationController()
 
         // Pre-render if quality high
         if(this.quality.level === 0 && this.rendering.renderer.backend.isWebGPUBackend)

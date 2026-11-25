@@ -1,6 +1,7 @@
 import * as THREE from 'three/webgpu'
 import { color, uniform, vec2 } from 'three/tsl'
 import { Game } from './Game.js'
+import { Events } from './Events.js'
 import gsap from 'gsap'
 
 export class Reveal
@@ -8,7 +9,8 @@ export class Reveal
     constructor()
     {
         this.game = Game.getInstance()
-        
+        this.events = new Events()
+
         this.step = -1
         const respawn = this.game.respawns.getDefault()
         this.position = respawn.position.clone()
@@ -84,9 +86,8 @@ export class Reveal
                     }
                 )
 
-                // Intro loader => Show label and sound button
+                // Intro loader => Show label
                 this.game.world.intro.setText()
-                this.game.world.intro.setSoundButton()
                 this.game.ticker.wait(1, () =>
                 {
                     this.game.world.intro.showLabel()
@@ -217,6 +218,8 @@ export class Reveal
             this.game.overlay.moveOnTop()
 
             this.game.ticker.events.off('tick', this.update)
+
+            this.events.trigger('complete')
         }
 
         this.step = step

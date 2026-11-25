@@ -512,10 +512,11 @@ export class Audio
             this.events.trigger('muteChange', [ false ])
         }
 
-        // From local storage
+        // Muted by default (presentation mode) unless explicitly unmuted before
         const soundToggleLocal = localStorage.getItem('soundToggle')
-        if(soundToggleLocal !== null && soundToggleLocal === '1')
-            this.mute.activate()
+        this.mute.activate()
+        if(soundToggleLocal === '0')
+            this.mute.deactivate()
 
         // Inputs keyboard
         this.game.inputs.addActions([

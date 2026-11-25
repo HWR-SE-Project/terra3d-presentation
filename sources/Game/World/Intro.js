@@ -199,65 +199,6 @@ export class Intro
         this.text.mesh = mesh
     }
 
-    setSoundButton()
-    {
-        this.soundButton = {}
-
-        // Texture
-        const texture = this.game.resources.soundTexture
-        
-        if(this.game.audio.mute.active)
-            texture.offset.x = 0.5
-
-        // Geometry
-        const scale = 0.5
-        const geometry = new THREE.PlaneGeometry(50 / 38 * scale, 1 * scale)
-
-        // Material
-        const intensity = uniform(1)
-        const material = new THREE.MeshBasicNodeMaterial({
-            alphaTest: 0.5,
-            alphaMap: texture,
-            transparent: true,
-            outputNode: vec4(vec3(1).mul(intensity), 1)
-        })
-
-        // Mesh
-        const mesh = new THREE.Mesh(geometry, material)
-        mesh.position.x = 0.38
-        mesh.position.y = - 1
-        this.label.add(mesh)
-
-        // Intersect
-        const position = this.label.position.clone()
-        position.x += 0.38
-        position.y += - 1
-
-        this.soundButton.intersect = this.game.rayCursor.addIntersect({
-            active: true,
-            shape: new THREE.Sphere(position, 0.5),
-            onClick: () =>
-            {
-                this.game.audio.mute.toggle()
-            },
-            onEnter: () =>
-            {
-                gsap.to(intensity, { value: 1.5, duration: 0.3, overwrite: true })
-            },
-            onLeave: () =>
-            {
-                gsap.to(intensity, { value: 1, duration: 0.3, overwrite: true })
-            }
-        })
-
-        this.game.audio.events.on('muteChange', (active) =>
-        {
-            texture.offset.x = active ? 0.5 : 0
-        })
-
-        this.soundButton.mesh = mesh
-    }
-
     showLabel()
     {
         const dummy = { scale: 0 }
@@ -296,8 +237,6 @@ export class Intro
                 onComplete: () =>
                 {
                     this.text.mesh.removeFromParent()
-                    this.soundButton.mesh.removeFromParent()
-                    this.game.rayCursor.removeIntersect(this.soundButton.intersect)
                 }
             }
         )
@@ -319,17 +258,13 @@ export class Intro
 
         // Geometries
         this.circle.mesh.geometry.dispose()
-        this.soundButton.mesh.geometry.dispose()
         this.text.mesh.geometry.dispose()
 
         // Materials
         this.circle.mesh.material.dispose()
-        this.soundButton.mesh.material.dispose()
         this.text.mesh.material.dispose()
 
         // Textures
-        this.game.resources.soundTexture.dispose()
-
         this.text.textures.forEach((value, key) =>
         {
             value.dispose()
