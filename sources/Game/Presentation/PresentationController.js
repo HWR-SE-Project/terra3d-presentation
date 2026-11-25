@@ -3,6 +3,7 @@ import { Player } from '../Player.js'
 import { CameraDirector } from './CameraDirector.js'
 import { CharacterDirector } from './CharacterDirector.js'
 import { SlideRenderer } from './SlideRenderer.js'
+import { MotionDirector } from './MotionDirector.js'
 import { StationStands } from './StationStands.js'
 import { STATION_ORDER, STATIONS, getStation, getRoute } from './PresentationStations.js'
 import { getSlide, getDefinedSlideIds } from './slides.js'
@@ -35,6 +36,7 @@ export class PresentationController
         this.cameraDirector = new CameraDirector()
         this.characterDirector = new CharacterDirector()
         this.slideRenderer = new SlideRenderer()
+        this.motionDirector = new MotionDirector(this.slideRenderer)
         this.stationStands = new StationStands()
         this.slideRenderer.onStationSelect = (stationId) => this.goToSlide(STATIONS[stationId].slideRange[0])
         this.slideRenderer.onClose = () => this.closeStation()
@@ -46,9 +48,18 @@ export class PresentationController
         this.pendingTarget = null
         this.started = false
 
+        this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+        this.motionDirector.setReducedMotion(this.reducedMotion.matches)
+        this.reducedMotion.addEventListener?.('change', (event) => this.motionDirector.setReducedMotion(event.matches))
+
         this.setInputs()
 
         this.game.reveal.events.on('complete', () => this.start())
+    }
+
+    get currentSlide()
+    {
+        return getSlide(this.currentSlideId)
     }
 
     setInputs()
@@ -168,7 +179,11 @@ export class PresentationController
         this.game.inputs.filters.add('station')
 
         this.cameraDirector.enter(station.camera)
-        this.slideRenderer.showStation(getSlide(slideId), this.sectionMeta(slideId))
+        this.slideRenderer.setFlow('station')
+        this.slideRenderer.fillStage(getSlide(slideId), this.sectionMeta(slideId))
+        this.slideRenderer.setActiveStation(null)
+        this.slideRenderer.setVisible(true)
+        this.motionDirector.enter(this.currentSlide)
     }
 
     closeStation()
@@ -176,7 +191,7 @@ export class PresentationController
         if(this.mode !== PresentationController.MODE_STATION)
             return
 
-        this.slideRenderer.hideStation()
+        this.motionDirector.exit(this.currentSlide, 'close').then(() => this.slideRenderer.setVisible(false))
         this.cameraDirector.exit()
 
         this.game.player.state = Player.STATE_DEFAULT
@@ -189,24 +204,52 @@ export class PresentationController
 
     stationNext()
     {
+        if(this.motionDirector.next(this.currentSlide))
+            return
+
         const ids = this.getStationSlideIds(this.currentStationId)
         const index = ids.indexOf(this.currentSlideId)
         if(index === -1 || index === ids.length - 1)
             return
 
+        const fromSlide = this.currentSlide
         this.currentSlideId = ids[index + 1]
-        this.slideRenderer.swapStationSlide(getSlide(this.currentSlideId), this.sectionMeta(this.currentSlideId))
+        const toSlide = this.currentSlide
+
+        this.motionDirector.transition(toSlide, {
+            fromSlide,
+            backward: false,
+            render: () =>
+            {
+                this.slideRenderer.fillStage(toSlide, this.sectionMeta(this.currentSlideId))
+                this.slideRenderer.setActiveStation(null)
+            }
+        })
     }
 
     stationPrev()
     {
+        if(this.motionDirector.prev(this.currentSlide))
+            return
+
         const ids = this.getStationSlideIds(this.currentStationId)
         const index = ids.indexOf(this.currentSlideId)
         if(index <= 0)
             return
 
+        const fromSlide = this.currentSlide
         this.currentSlideId = ids[index - 1]
-        this.slideRenderer.swapStationSlide(getSlide(this.currentSlideId), this.sectionMeta(this.currentSlideId))
+        const toSlide = this.currentSlide
+
+        this.motionDirector.transition(toSlide, {
+            fromSlide,
+            backward: true,
+            render: () =>
+            {
+                this.slideRenderer.fillStage(toSlide, this.sectionMeta(this.currentSlideId))
+                this.slideRenderer.setActiveStation(null)
+            }
+        })
     }
 
     // --- Optional secondary mode: the original Phase 4 automated tour ---
@@ -221,6 +264,9 @@ export class PresentationController
             this.skipTransition()
             return
         }
+
+        if(this.motionDirector.next(this.currentSlide))
+            return
 
         const ids = getDefinedSlideIds()
         const index = ids.indexOf(this.currentSlideId)
@@ -240,6 +286,9 @@ export class PresentationController
             this.skipTransition()
             return
         }
+
+        if(this.motionDirector.prev(this.currentSlide))
+            return
 
         const ids = getDefinedSlideIds()
         const index = ids.indexOf(this.currentSlideId)
@@ -277,8 +326,18 @@ export class PresentationController
 
         if(targetStation.id === this.currentStationId)
         {
+            const fromSlide = this.currentSlide
             this.currentSlideId = slideId
-            this.slideRenderer.swapSlide(slide)
+
+            this.motionDirector.transition(slide, {
+                fromSlide,
+                backward: slideId < fromSlide.id,
+                render: () =>
+                {
+                    this.slideRenderer.fillStage(slide)
+                    this.slideRenderer.setActiveStation(slide.stationId)
+                }
+            })
             return
         }
 
@@ -290,7 +349,7 @@ export class PresentationController
         this.isTransitioning = true
         this.pendingTarget = { station: targetStation, slideId: targetSlideId }
 
-        await this.slideRenderer.hideForTransition()
+        await this.motionDirector.exit(this.currentSlide, 'cross')
 
         const route = getRoute(this.currentStationId, targetStation.id)
         const duration = Math.max(2.2, Math.min(4.5, route.length * 2))
@@ -305,7 +364,11 @@ export class PresentationController
         this.isTransitioning = false
         this.pendingTarget = null
 
-        this.slideRenderer.revealAfterTransition(getSlide(targetSlideId))
+        const slide = getSlide(targetSlideId)
+        this.slideRenderer.setFlow('tour')
+        this.slideRenderer.fillStage(slide)
+        this.slideRenderer.setActiveStation(targetStation.id)
+        this.motionDirector.enter(slide, { restoreBackdrop: true })
     }
 
     /**
@@ -356,8 +419,11 @@ export class PresentationController
             this.game.inputs.filters.clear()
             this.game.inputs.filters.add('tour')
 
+            this.slideRenderer.setFlow('tour')
             this.slideRenderer.setVisible(true)
-            this.slideRenderer.revealAfterTransition(getSlide(this.currentSlideId))
+            this.slideRenderer.fillStage(this.currentSlide)
+            this.slideRenderer.setActiveStation(this.currentSlide.stationId)
+            this.motionDirector.enter(this.currentSlide)
 
             this.game.overlay.hide()
         })
@@ -367,6 +433,7 @@ export class PresentationController
     {
         this.mode = PresentationController.MODE_EXPLORATION
 
+        this.motionDirector.kill()
         this.slideRenderer.setVisible(false)
         this.cameraDirector.exit()
 

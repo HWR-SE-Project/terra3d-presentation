@@ -1841,3 +1841,21 @@ hairline = 1px solid alpha(#ffffff, 0.1)
         &__key
             width 22px
             height 22px
+
+// =============================================================================
+// Reduced motion — collapse CSS-driven motion to a static, instant state. The
+// JS motion layer (MotionDirector) mirrors this, so the two stay in lockstep.
+// =============================================================================
+
+@media (prefers-reduced-motion: reduce)
+    .presentation
+        transition none
+
+        .challenge__ping
+            animation none
+
+        .demo__dot
+            animation none
+
+    .station-prompt
+        transition none

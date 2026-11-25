@@ -1,4 +1,3 @@
-import gsap from 'gsap'
 import { Game } from '../Game.js'
 import { STATION_ORDER, STATIONS } from './PresentationStations.js'
 
@@ -252,7 +251,9 @@ function flowDiagramSVG(steps)
         return `${arrow}<text x="${labelX}" y="${y - 9}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="13.5" fill="${PALETTE.cream}">${m.label}</text>`
     }
 
-    const arrows = messages.map(arrowFor).join('')
+    // Each message is grouped and tagged so the motion layer can reveal the
+    // arrows (and their labels) one presenter-controlled step at a time.
+    const arrows = messages.map((m, i) => `<g class="flow-message" data-message="${i + 1}">${arrowFor(m, i)}</g>`).join('')
 
     return `<svg class="flow-diagram" viewBox="0 0 ${W} ${H}" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Ablauf einer Spielrunde">${head}${lifelines}${arrows}</svg>`
 }
@@ -517,7 +518,7 @@ function renderStack(slide)
 function renderFlow(slide)
 {
     const legend = slide.steps.map((step) => `
-        <li class="flow__legend-item" data-actor="${step.actor}">
+        <li class="flow__legend-item" data-actor="${step.actor}" data-step="${step.number}">
             <span class="flow__legend-n">${step.number}</span>
             <div><strong>${step.actor} — ${step.title}</strong><p>${step.text}</p></div>
         </li>
@@ -561,7 +562,7 @@ function renderHours(slide)
 function renderChallenges(slide)
 {
     const items = slide.items.map((item) => `
-        <li class="challenges__row">
+        <li class="challenges__row" data-status="${item.status}">
             <div class="challenges__problem"><span class="challenges__tag">Herausforderung</span><p>${item.challenge}</p></div>
             <span class="challenges__arrow" aria-hidden="true">→</span>
             <div class="challenges__solution">
@@ -596,7 +597,7 @@ function renderAudit(slide)
 {
     const { totalPass, totalPartial, totalFail, total, mandatoryPass, mandatoryTotal } = slide.summary
     const rows = slide.rows.map((row) => `
-        <tr class="${row.critical ? 'is-critical' : ''}">
+        <tr class="${row.critical ? 'is-critical' : ''}" data-status="${row.status}">
             <td class="audit__nr">${row.nr}</td>
             <td>${row.text}${row.critical ? '<span class="audit__critical-tag">kritisch</span>' : ''}</td>
             <td>${badge(row.status)}</td>
@@ -612,10 +613,10 @@ function renderAudit(slide)
                     <span class="audit__seg is-fail" style="--w:${(totalFail / total) * 100}%"></span>
                 </div>
                 <div class="audit__stats">
-                    <span class="audit__stat is-pass"><b>${totalPass}/${total}</b><em>bestanden</em></span>
-                    <span class="audit__stat is-partial"><b>${totalPartial}/${total}</b><em>teilweise</em></span>
-                    <span class="audit__stat is-fail"><b>${totalFail}/${total}</b><em>nicht bestanden</em></span>
-                    <span class="audit__stat is-mandatory"><b>${mandatoryPass}/${mandatoryTotal}</b><em>Basis-Anforderungen</em></span>
+                    <span class="audit__stat is-pass"><b><span class="num" data-to="${totalPass}">${totalPass}</span>/${total}</b><em>bestanden</em></span>
+                    <span class="audit__stat is-partial"><b><span class="num" data-to="${totalPartial}">${totalPartial}</span>/${total}</b><em>teilweise</em></span>
+                    <span class="audit__stat is-fail"><b><span class="num" data-to="${totalFail}">${totalFail}</span>/${total}</b><em>nicht bestanden</em></span>
+                    <span class="audit__stat is-mandatory"><b><span class="num" data-to="${mandatoryPass}">${mandatoryPass}</span>/${mandatoryTotal}</b><em>Basis-Anforderungen</em></span>
                 </div>
             </div>
             <div class="audit__cols">
@@ -639,16 +640,20 @@ function renderAudit(slide)
 
 function renderTesting(slide)
 {
-    const tiers = slide.tiers.map((tier, i) => `
+    const tiers = slide.tiers.map((tier, i) =>
+    {
+        const [ numerator, remainder ] = tier.result.split(' / ')
+        return `
         <li class="tiers__tier" style="--i:${i}">
             <div class="tiers__head">
                 <h3>${tier.label}</h3>
                 <span class="tiers__tool">${tier.tool}</span>
             </div>
-            <p class="tiers__result">${tier.result}</p>
+            <p class="tiers__result"><span class="num" data-to="${numerator}">${numerator}</span> / ${remainder}</p>
             <p class="tiers__note">${tier.note}</p>
         </li>
-    `).join('')
+    `
+    }).join('')
 
     return `
         <div class="testing">
@@ -842,77 +847,10 @@ export class SlideRenderer
         }
     }
 
-    showInitial(slide)
+    /** Set which flow (tour / station) drives the visible chrome. */
+    setFlow(flow)
     {
-        this.root.dataset.flow = 'tour'
-        this.fillStage(slide)
-        this.setActiveStation(slide.stationId)
-        this.root.classList.add('is-visible')
-        gsap.fromTo(this.elements.stage, { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.9, ease: 'power2.out' })
-    }
-
-    swapSlide(slide)
-    {
-        const stage = this.elements.stage
-        gsap.to(stage, {
-            autoAlpha: 0, y: -10, duration: 0.25, ease: 'power1.in',
-            onComplete: () =>
-            {
-                this.fillStage(slide)
-                gsap.fromTo(stage, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'power2.out' })
-            }
-        })
-    }
-
-    hideForTransition()
-    {
-        this.setActiveStation(null)
-
-        return new Promise((resolve) =>
-        {
-            gsap.to(this.elements.stage, {
-                autoAlpha: 0, y: -18, duration: 0.4, ease: 'power1.in',
-                onComplete: resolve
-            })
-        })
-    }
-
-    revealAfterTransition(slide)
-    {
-        this.root.dataset.flow = 'tour'
-        this.fillStage(slide)
-        this.setActiveStation(slide.stationId)
-        gsap.fromTo(this.elements.stage, { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' })
-    }
-
-    showStation(slide, sectionMeta)
-    {
-        this.root.dataset.flow = 'station'
-        this.fillStage(slide, sectionMeta)
-        this.setActiveStation(null)
-        this.root.classList.add('is-visible')
-        gsap.fromTo(this.elements.stage, { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' })
-    }
-
-    swapStationSlide(slide, sectionMeta)
-    {
-        const stage = this.elements.stage
-        gsap.to(stage, {
-            autoAlpha: 0, y: -10, duration: 0.25, ease: 'power1.in',
-            onComplete: () =>
-            {
-                this.fillStage(slide, sectionMeta)
-                gsap.fromTo(stage, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'power2.out' })
-            }
-        })
-    }
-
-    hideStation()
-    {
-        gsap.to(this.elements.stage, {
-            autoAlpha: 0, y: -10, duration: 0.3, ease: 'power1.in',
-            onComplete: () => this.setVisible(false)
-        })
+        this.root.dataset.flow = flow
     }
 
     setVisible(visible)
