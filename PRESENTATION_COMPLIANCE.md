@@ -169,8 +169,61 @@ ausgelegt (siehe Phase-4-Bericht).
 
 ## 7. Browser-Validierung
 
-Siehe technischer Abschlussbericht (Chat). Wird nach dem Testlauf ergänzt.
+Durchgeführt am 2026-11-25 gegen den Dev-Server (`npm run dev`, Chrome-
+Erweiterung verbunden, `VITE_GAME_PUBLIC=1` temporär für Konsolenzugriff
+gesetzt und danach zurückgesetzt — nicht committet, `.env` ist ohnehin
+`.gitignore`t).
+
+- Alle 21 Folien in allen 4 Stationen einzeln angesteuert (`stationNext()`-
+  Durchlauf je Station) und per Screenshot geprüft: korrekter Inhalt,
+  korrekte Stationszuordnung, keine abgeschnittenen/überlappenden Inhalte.
+- Echter Walk-up-Test: Charakter an den Konzept-Stand teleportiert,
+  Annäherungs-Prompt „E Präsentation öffnen" real angezeigt, **E** real
+  gedrückt (nicht nur Konsolenaufruf) → Folie 1 öffnet sich korrekt.
+- Automatischer Tour-Modus (**M**) getestet: Start bei Folie 1 (zentriertes
+  Titel-Layout), direkter Sprung zu Folie 21 (`goToSlide(21)`) inkl.
+  Kamera-/Charakter-Übergang durch alle 4 Stationen, korrekte Ankunft am
+  zentrierten Abschluss-Layout, Stations-Nav-Punkt „04 Qualität" korrekt
+  aktiv.
+- Alle 8 echten Screenshots per `fetch()` verifiziert: HTTP 200,
+  `image/webp`.
+- Konsole durchgehend fehlerfrei (`onlyErrors` über die gesamte Sitzung,
+  mehrfach geprüft) — keine neuen Fehler durch Phase 5.
+- **Zwei echte Bugs gefunden und behoben** (nicht nur kosmetisch —
+  betrafen die erste reale Folie 2 nach Programmstart):
+  1. GSAP übernimmt beim `autoAlpha`/`y`-Tween die `transform`-Eigenschaft
+     per Inline-Style und fror dabei die CSS-Zentrierung des Titel-/
+     Abschluss-Layouts (`translate(-50%, -50%)`) ein, was jede folgende
+     Folie nach links verschoben darstellte. Behoben durch einen
+     zusätzlichen inneren Wrapper (`.presentation__stage-inner`), den GSAP
+     animiert, während die äußere Positionierung unangetastet bleibt.
+  2. `data-density="wide"` wurde auf dem falschen Element gesetzt (Root
+     `.presentation` statt `.presentation__stage`), wodurch die breite
+     Darstellung für Tabellen/Galerien nie griff. Per CSS-Selektor-Fix
+     behoben, analog zum bereits bestehenden `data-layout`-Muster.
+- **Bekannte Automatisierungs-Einschränkung** (kein Produktfehler, bereits
+  in Phase 4 dokumentiert): `resize_window` ändert in dieser automatisierten
+  Browser-Sitzung die tatsächliche Viewport-Größe nicht zuverlässig (reale
+  Auflösung blieb bei 2560×1289 statt der angeforderten 1920×1080). Die
+  1920×1080-Lesbarkeit wurde daher über die bereits im Code vorhandenen,
+  geprüften Media-Query-Breakpoints (900px/640px) sichergestellt, nicht
+  durch Pixel-genaues Live-Resizing.
 
 ## 8. Produktions-Build
 
-Siehe technischer Abschlussbericht (Chat). Wird nach dem Build-Lauf ergänzt.
+Durchgeführt am 2026-11-25 (`npm run build`, `vite v8.3.5`).
+
+- **Erfolgreich**, 578 Module transformiert, Build in 894ms.
+- `dist/presentation/screens/*.webp` korrekt im Build-Output enthalten
+  (öffentliche Assets, unverändert kopiert).
+- `dist/assets/index-*.css` enthält die neuen `content-*`-Klassen
+  (`content-badge`, `content-table`, `content-stack` stichprobenartig
+  verifiziert).
+- Verbleibende Build-Warnungen (Chunk-Größe > 500 kB, `eval` in
+  `vm-browserify`) sind **vorbestehend** und nicht durch Phase 5 verursacht
+  — `vm-browserify` ist eine Abhängigkeit von `vite-plugin-node-polyfills`,
+  nicht Teil der Präsentationsarbeit.
+- `vite preview` gestartet und im Browser geöffnet: Seite lädt
+  fehlerfrei (keine neuen Konsolenfehler), `/presentation/screens/
+  start-home.webp` liefert HTTP 200 im Produktions-Build.
+- Keine durch Phase 5 verursachten Regressionen gefunden.
