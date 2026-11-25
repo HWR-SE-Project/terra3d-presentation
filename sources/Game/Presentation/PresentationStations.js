@@ -60,6 +60,13 @@ function cameraFraming(stand, landmark, { distance = 7, height = 4.2, side = 1, 
 
 const STAND_OFFSET = 3
 
+// How close the character needs to be to a station's landmark (world-space,
+// flat XZ distance) for that stand to become the "nearest eligible stand"
+// for walk-up interaction (Phase 4.1). Comfortably inside cameraFraming()'s
+// own distance=7 shot, so the cinematic framing still reads well no matter
+// where within the radius the player actually pressed E.
+export const INTERACTION_RADIUS = 3.2
+
 // Zone root position (area.model.position) and landmark local offset, both
 // read directly from static/areas/areas.glb and ZoneIdentity.js.
 const RAW = {
@@ -167,4 +174,30 @@ export function getRoute(fromId, toId)
         return [ ...reverseOverride ].reverse()
 
     return [ STATIONS[fromId].standPoint, STATIONS[toId].standPoint ]
+}
+
+/**
+ * Which station (if any) is eligible for walk-up interaction from a given
+ * world-space XZ position - the closest landmark within radius, so that
+ * overlapping radii (not the case today, but kept correct regardless) never
+ * offer two stands at once.
+ */
+export function findNearestStation(x, z, radius = INTERACTION_RADIUS)
+{
+    let nearestId = null
+    let nearestDistance = Infinity
+
+    for(const id of STATION_ORDER)
+    {
+        const station = STATIONS[id]
+        const distance = Math.hypot(station.landmark.x - x, station.landmark.z - z)
+
+        if(distance <= radius && distance < nearestDistance)
+        {
+            nearestDistance = distance
+            nearestId = id
+        }
+    }
+
+    return nearestId
 }

@@ -176,3 +176,138 @@ lime-light = #d7ff96
 
         @media only screen and (max-width 640px)
             display none
+
+    &__close
+        position absolute
+        top 24px
+        right 24px
+        display none
+        align-items center
+        justify-content center
+        width 40px
+        height 40px
+        border-radius 50%
+        border 1px solid alpha(cream, 0.3)
+        background alpha(space-deep, 0.55)
+        color cream
+        font-size 1.5rem
+        line-height 1
+        cursor pointer
+        pointer-events auto
+        transition border-color 0.2s ease, color 0.2s ease, background 0.2s ease
+
+        html:not(.is-mode-touch) &:hover
+            border-color alpha(cream, 0.5)
+            color lime-light
+
+        @media only screen and (max-width 640px)
+            top 14px
+            right 14px
+            width 34px
+            height 34px
+            font-size 1.25rem
+
+    &__section-nav
+        display flex
+        align-items center
+        gap 1em
+        margin-top 1em
+
+    &__section-count
+        font-size 0.8rem
+        font-weight 600
+        letter-spacing 0.03em
+        color alpha(cream, 0.55)
+
+    &__finish
+        display none
+        align-items center
+        gap 8px
+        padding 10px 20px
+        border-radius 999px
+        border 1.5px solid var(--accent, lime)
+        background alpha(space-deep, 0.4)
+        color cream
+        font-family "Fredoka", ui-rounded, sans-serif
+        font-weight 600
+        font-size 0.85rem
+        cursor pointer
+        pointer-events auto
+        transition border-color 0.2s ease, background 0.2s ease, transform 0.2s ease
+
+        &.is-visible
+            display inline-flex
+
+        html:not(.is-mode-touch) &:hover
+            background alpha(space-light, 0.6)
+            transform translateY(-1px)
+
+    // Mode-specific chrome: tour (automated, all stations) vs. station
+    // (one stand opened by walking up and pressing the interact key).
+    &[data-flow="station"]
+        .presentation__close
+            display flex
+
+        .presentation__stations
+            display none
+
+        .presentation__hint--tour
+            display none
+
+    &[data-flow="tour"]
+        .presentation__close
+            display none
+
+        .presentation__section-nav
+            display none
+
+        .presentation__hint--station
+            display none
+
+.station-prompt
+    position fixed
+    left 50%
+    bottom 11%
+    transform translate(-50%, 10px)
+    z-index 15
+    display flex
+    align-items center
+    gap 10px
+    padding 10px 18px
+    border-radius 999px
+    border 1px solid alpha(cream, 0.3)
+    background alpha(space-deep, 0.72)
+    color cream
+    font-family "Nunito", sans-serif
+    font-weight 600
+    font-size 0.95rem
+    pointer-events none
+    opacity 0
+    transition opacity 0.25s ease, transform 0.25s ease
+    --accent lime
+
+    &.is-visible
+        opacity 1
+        transform translate(-50%, 0)
+
+    &__key
+        display flex
+        align-items center
+        justify-content center
+        width 26px
+        height 26px
+        border-radius 8px
+        border 1.5px solid var(--accent)
+        color var(--accent)
+        font-family "Fredoka", ui-rounded, sans-serif
+        font-weight 700
+        font-size 0.85rem
+
+    @media only screen and (max-width 640px)
+        bottom 16%
+        font-size 0.8rem
+        padding 8px 14px
+
+        &__key
+            width 22px
+            height 22px

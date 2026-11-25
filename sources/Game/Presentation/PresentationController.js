@@ -3,19 +3,30 @@ import { Player } from '../Player.js'
 import { CameraDirector } from './CameraDirector.js'
 import { CharacterDirector } from './CharacterDirector.js'
 import { SlideRenderer } from './SlideRenderer.js'
-import { STATIONS, getStation, getRoute } from './PresentationStations.js'
+import { StationStands } from './StationStands.js'
+import { STATION_ORDER, STATIONS, getStation, getRoute } from './PresentationStations.js'
 import { getSlide, getDefinedSlideIds } from './slides.js'
 
 /**
- * Single source of truth for presentation state: current slide/station,
- * presentation vs. exploration mode, and transition locking. Everything
- * else (camera motion, character motion, slide markup) is delegated to a
- * dedicated module and only ever driven from here.
+ * Single source of truth for presentation state. Three mutually exclusive
+ * modes:
+ * - EXPLORATION (default/primary): free walk-around, station stands glow
+ *   and prompt when approached, nothing opens on its own.
+ * - STATION (primary): one station's own slides, opened by walking up to
+ *   its stand and pressing the interact key. Camera cuts to that station's
+ *   cinematic framing; the character itself is never moved - only manual
+ *   input is suspended - so closing it is a simple reverse, not a restore.
+ * - TOUR (secondary/optional): the original Phase 4 automated walk+camera
+ *   choreography across every station in sequence, toggled with M.
+ *
+ * Camera motion, character motion and slide markup are all still delegated
+ * to a dedicated module and only ever driven from here.
  */
 export class PresentationController
 {
-    static MODE_PRESENTATION = 'presentation'
     static MODE_EXPLORATION = 'exploration'
+    static MODE_STATION = 'station'
+    static MODE_TOUR = 'tour'
 
     constructor()
     {
@@ -24,7 +35,9 @@ export class PresentationController
         this.cameraDirector = new CameraDirector()
         this.characterDirector = new CharacterDirector()
         this.slideRenderer = new SlideRenderer()
+        this.stationStands = new StationStands()
         this.slideRenderer.onStationSelect = (stationId) => this.goToSlide(STATIONS[stationId].slideRange[0])
+        this.slideRenderer.onClose = () => this.closeStation()
 
         this.mode = null
         this.currentSlideId = null
@@ -41,13 +54,14 @@ export class PresentationController
     setInputs()
     {
         this.game.inputs.addActions([
-            { name: 'presentationNext',       categories: [ 'presentation' ],              keys: [ 'Keyboard.ArrowRight', 'Keyboard.Space' ] },
-            { name: 'presentationPrev',       categories: [ 'presentation' ],              keys: [ 'Keyboard.ArrowLeft' ] },
-            { name: 'presentationFirst',      categories: [ 'presentation' ],              keys: [ 'Keyboard.Home' ] },
-            { name: 'presentationLast',       categories: [ 'presentation' ],              keys: [ 'Keyboard.End' ] },
-            { name: 'presentationFullscreen', categories: [ 'presentation', 'wandering' ], keys: [ 'Keyboard.KeyF' ] },
-            { name: 'presentationEscape',     categories: [ 'presentation', 'wandering' ], keys: [ 'Keyboard.Escape' ] },
-            { name: 'presentationModeToggle', categories: [ 'presentation', 'wandering' ], keys: [ 'Keyboard.KeyM' ] },
+            { name: 'stationInteract',        categories: [ 'wandering' ],                        keys: [ 'Keyboard.KeyE', 'Gamepad.cross' ] },
+            { name: 'presentationNext',       categories: [ 'tour', 'station' ],                  keys: [ 'Keyboard.ArrowRight', 'Keyboard.Space' ] },
+            { name: 'presentationPrev',       categories: [ 'tour', 'station' ],                  keys: [ 'Keyboard.ArrowLeft' ] },
+            { name: 'presentationFirst',      categories: [ 'tour' ],                              keys: [ 'Keyboard.Home' ] },
+            { name: 'presentationLast',       categories: [ 'tour' ],                              keys: [ 'Keyboard.End' ] },
+            { name: 'presentationFullscreen', categories: [ 'tour', 'station', 'wandering' ],     keys: [ 'Keyboard.KeyF' ] },
+            { name: 'presentationEscape',     categories: [ 'tour', 'station', 'wandering' ],     keys: [ 'Keyboard.Escape' ] },
+            { name: 'presentationModeToggle', categories: [ 'tour', 'wandering' ],                 keys: [ 'Keyboard.KeyM' ] },
         ])
 
         const on = (name, handler) =>
@@ -59,8 +73,9 @@ export class PresentationController
             })
         }
 
-        on('presentationNext', () => this.next())
-        on('presentationPrev', () => this.prev())
+        on('stationInteract', () => this.handleInteract())
+        on('presentationNext', () => this.mode === PresentationController.MODE_STATION ? this.stationNext() : this.next())
+        on('presentationPrev', () => this.mode === PresentationController.MODE_STATION ? this.stationPrev() : this.prev())
         on('presentationFirst', () => this.goToSlide(getDefinedSlideIds()[0]))
         on('presentationLast', () => this.goToSlide(getDefinedSlideIds().at(-1)))
         on('presentationFullscreen', () => this.toggleFullscreen())
@@ -74,9 +89,11 @@ export class PresentationController
     }
 
     /**
-     * Called once the boot intro (Reveal.js) finishes - presentation mode
-     * is the primary/default mode for this app, so it takes over right as
-     * the world becomes interactive.
+     * Called once the boot intro (Reveal.js) finishes. Free exploration is
+     * the default/primary experience - no slides open, no camera cut, no
+     * character movement. currentStationId/currentSlideId just seed a sane
+     * starting point for the optional tour mode if the player invokes it
+     * with M before ever opening a station themselves.
      */
     start()
     {
@@ -84,27 +101,119 @@ export class PresentationController
             return
         this.started = true
 
-        const firstSlideId = getDefinedSlideIds()[0]
-        const slide = getSlide(firstSlideId)
-        const station = getStation(slide.stationId)
+        this.currentStationId = STATION_ORDER[0]
+        this.currentSlideId = getDefinedSlideIds()[0]
 
-        this.mode = PresentationController.MODE_PRESENTATION
-        this.currentSlideId = firstSlideId
-        this.currentStationId = station.id
-
-        this.game.player.state = Player.STATE_LOCKED
-        this.characterDirector.skip(station.standPoint, station.facingYRotation)
-        this.cameraDirector.enter(station.camera)
-
+        this.mode = PresentationController.MODE_EXPLORATION
         this.game.inputs.filters.clear()
-        this.game.inputs.filters.add('presentation')
-
-        this.slideRenderer.showInitial(slide)
+        this.game.inputs.filters.add('wandering')
+        this.stationStands.setActive(true)
     }
+
+    handleInteract()
+    {
+        if(this.mode !== PresentationController.MODE_EXPLORATION)
+            return
+
+        const stationId = this.stationStands.nearestStationId
+        if(!stationId)
+            return
+
+        this.openStation(stationId)
+    }
+
+    getStationSlideIds(stationId)
+    {
+        const [ from, to ] = getStation(stationId).slideRange
+        return getDefinedSlideIds().filter((id) => id >= from && id <= to)
+    }
+
+    sectionMeta(slideId)
+    {
+        const station = getStation(getSlide(slideId).stationId)
+        const [ from, to ] = station.slideRange
+        const definedIds = this.getStationSlideIds(station.id)
+
+        return {
+            indexInSection: slideId - from + 1,
+            totalInSection: to - from + 1,
+            isFinal: slideId === definedIds.at(-1),
+        }
+    }
+
+    /**
+     * Open one station's own slides from exploration. The character stays
+     * exactly where it was walked to - only the camera cuts to the
+     * station's cinematic framing and manual movement is suspended - so
+     * closing it later is a plain reverse, never a snap-back/restore.
+     */
+    openStation(stationId)
+    {
+        if(this.mode !== PresentationController.MODE_EXPLORATION)
+            return
+
+        const slideId = this.getStationSlideIds(stationId)[0]
+        if(!slideId)
+            return
+
+        const station = getStation(stationId)
+
+        this.mode = PresentationController.MODE_STATION
+        this.currentStationId = stationId
+        this.currentSlideId = slideId
+
+        this.stationStands.setActive(false)
+        this.game.player.state = Player.STATE_LOCKED
+        this.game.inputs.filters.clear()
+        this.game.inputs.filters.add('station')
+
+        this.cameraDirector.enter(station.camera)
+        this.slideRenderer.showStation(getSlide(slideId), this.sectionMeta(slideId))
+    }
+
+    closeStation()
+    {
+        if(this.mode !== PresentationController.MODE_STATION)
+            return
+
+        this.slideRenderer.hideStation()
+        this.cameraDirector.exit()
+
+        this.game.player.state = Player.STATE_DEFAULT
+        this.game.inputs.filters.clear()
+        this.game.inputs.filters.add('wandering')
+
+        this.mode = PresentationController.MODE_EXPLORATION
+        this.stationStands.setActive(true)
+    }
+
+    stationNext()
+    {
+        const ids = this.getStationSlideIds(this.currentStationId)
+        const index = ids.indexOf(this.currentSlideId)
+        if(index === -1 || index === ids.length - 1)
+            return
+
+        this.currentSlideId = ids[index + 1]
+        this.slideRenderer.swapStationSlide(getSlide(this.currentSlideId), this.sectionMeta(this.currentSlideId))
+    }
+
+    stationPrev()
+    {
+        const ids = this.getStationSlideIds(this.currentStationId)
+        const index = ids.indexOf(this.currentSlideId)
+        if(index <= 0)
+            return
+
+        this.currentSlideId = ids[index - 1]
+        this.slideRenderer.swapStationSlide(getSlide(this.currentSlideId), this.sectionMeta(this.currentSlideId))
+    }
+
+    // --- Optional secondary mode: the original Phase 4 automated tour ---
 
     next()
     {
-        if(this.mode !== PresentationController.MODE_PRESENTATION)
+        if(this.mode !== PresentationController.MODE_TOUR)
             return
 
         if(this.isTransitioning)
@@ -123,7 +232,7 @@ export class PresentationController
 
     prev()
     {
-        if(this.mode !== PresentationController.MODE_PRESENTATION)
+        if(this.mode !== PresentationController.MODE_TOUR)
             return
 
         if(this.isTransitioning)
@@ -141,14 +250,14 @@ export class PresentationController
     }
 
     /**
-     * Direct navigation to any defined slide id (used by Home/End, the
-     * station nav dots, and next()/prev()). Same-station moves only swap
-     * slide content; cross-station moves trigger a full cinematic
+     * Direct navigation to any defined slide id (used by Home/End and the
+     * station nav dots, only meaningful in tour mode). Same-station moves
+     * only swap slide content; cross-station moves trigger a full cinematic
      * transition.
      */
     goToSlide(slideId)
     {
-        if(this.mode !== PresentationController.MODE_PRESENTATION)
+        if(this.mode !== PresentationController.MODE_TOUR)
             return
 
         if(this.isTransitioning)
@@ -216,19 +325,45 @@ export class PresentationController
 
     toggleMode()
     {
+        if(this.mode === PresentationController.MODE_STATION)
+            return
+
         if(this.isTransitioning)
         {
             this.skipTransition()
             return
         }
 
-        if(this.mode === PresentationController.MODE_PRESENTATION)
-            this.enterExploration()
+        if(this.mode === PresentationController.MODE_TOUR)
+            this.exitTour()
         else if(this.mode === PresentationController.MODE_EXPLORATION)
-            this.enterPresentation()
+            this.enterTour()
     }
 
-    enterExploration()
+    enterTour()
+    {
+        const station = getStation(this.currentStationId)
+
+        this.stationStands.setActive(false)
+
+        this.game.overlay.show(() =>
+        {
+            this.characterDirector.skip(station.standPoint, station.facingYRotation)
+            this.cameraDirector.enter(station.camera)
+
+            this.mode = PresentationController.MODE_TOUR
+            this.game.player.state = Player.STATE_LOCKED
+            this.game.inputs.filters.clear()
+            this.game.inputs.filters.add('tour')
+
+            this.slideRenderer.setVisible(true)
+            this.slideRenderer.revealAfterTransition(getSlide(this.currentSlideId))
+
+            this.game.overlay.hide()
+        })
+    }
+
+    exitTour()
     {
         this.mode = PresentationController.MODE_EXPLORATION
 
@@ -238,33 +373,7 @@ export class PresentationController
         this.game.player.state = Player.STATE_DEFAULT
         this.game.inputs.filters.clear()
         this.game.inputs.filters.add('wandering')
-    }
-
-    /**
-     * Restore a valid slide/station/camera state when coming back from
-     * exploration. The character may have wandered far from its station,
-     * so the snap-back is masked behind the game's own respawn-style
-     * overlay transition (Overlay.js), exactly like Player.respawn().
-     */
-    enterPresentation()
-    {
-        const station = getStation(this.currentStationId)
-
-        this.game.overlay.show(() =>
-        {
-            this.characterDirector.skip(station.standPoint, station.facingYRotation)
-            this.cameraDirector.enter(station.camera)
-
-            this.mode = PresentationController.MODE_PRESENTATION
-            this.game.player.state = Player.STATE_LOCKED
-            this.game.inputs.filters.clear()
-            this.game.inputs.filters.add('presentation')
-
-            this.slideRenderer.setVisible(true)
-            this.slideRenderer.revealAfterTransition(getSlide(this.currentSlideId))
-
-            this.game.overlay.hide()
-        })
+        this.stationStands.setActive(true)
     }
 
     toggleFullscreen()
@@ -277,6 +386,12 @@ export class PresentationController
 
     handleEscape()
     {
+        if(this.mode === PresentationController.MODE_STATION)
+        {
+            this.closeStation()
+            return
+        }
+
         if(document.fullscreenElement)
             document.exitFullscreen()
     }

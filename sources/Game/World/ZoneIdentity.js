@@ -1,6 +1,7 @@
 import * as THREE from 'three/webgpu'
 import { color } from 'three/tsl'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
+import gsap from 'gsap'
 import { Game } from '../Game.js'
 import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
 
@@ -24,6 +25,7 @@ export class ZoneIdentity
     {
         this.game = Game.getInstance()
         this.spinners = []
+        this.stands = {}
 
         this.setKonzept()
         this.setGameplay()
@@ -169,7 +171,7 @@ export class ZoneIdentity
 
         const base = { x: -2.81, y: -3.19, z: 7.43 }
 
-        this.placeGlowDisc(area, 'emissiveLimeRadialGradient', 1.1, [ base.x, base.y + 0.02, base.z ])
+        const glow = this.placeGlowDisc(area, 'emissiveLimeRadialGradient', 1.1, [ base.x, base.y + 0.02, base.z ])
 
         const gemBottom = this.createFacetedGem(0.42, PALETTE.cream)
         gemBottom.position.fromArray(this.worldPosition(area, [ base.x, base.y + 0.5, base.z ]))
@@ -189,7 +191,9 @@ export class ZoneIdentity
 
         this.spinners.push((delta) => { gemTop.rotation.y += delta * 0.6 })
 
-        this.placeSign(area, '01', 'KONZEPT', PALETTE.lime, [ 1.22, -1.7, 7.44 ])
+        const sign = this.placeSign(area, '01', 'KONZEPT', PALETTE.lime, [ 1.22, -1.7, 7.44 ])
+
+        this.stands.konzept = { glow, sign, pulse: [ gemBottom, gemMiddle, gemTop ] }
     }
 
     setGameplay()
@@ -201,8 +205,9 @@ export class ZoneIdentity
         const landmarkLocal = [ -0.96, -1.2, -3.47 ]
         const landmarkWorld = this.worldPosition(area, landmarkLocal)
 
-        this.placeGlowDisc(area, 'emissiveBlueRadialGradient', 1.3, [ landmarkLocal[0], -3.2, landmarkLocal[2] ])
+        const glow = this.placeGlowDisc(area, 'emissiveBlueRadialGradient', 1.3, [ landmarkLocal[0], -3.2, landmarkLocal[2] ])
 
+        let pivot = null
         const globeResource = this.game.resources.earthOrigamiModel?.scene
         if(globeResource)
         {
@@ -232,7 +237,7 @@ export class ZoneIdentity
                 -anchorSphere.center.z * scale
             )
 
-            const pivot = new THREE.Group()
+            pivot = new THREE.Group()
             pivot.add(merged)
             pivot.position.set(landmarkWorld[0], landmarkWorld[1], landmarkWorld[2])
             this.game.scene.add(pivot)
@@ -240,7 +245,9 @@ export class ZoneIdentity
             this.spinners.push((delta) => { merged.rotation.y += delta * (2 * Math.PI / 75) })
         }
 
-        this.placeSign(area, '02', 'GAMEPLAY', PALETTE.sky, [ -4.12, -1.3, -0.87 ])
+        const sign = this.placeSign(area, '02', 'GAMEPLAY', PALETTE.sky, [ -4.12, -1.3, -0.87 ])
+
+        this.stands.gameplay = { glow, sign, pulse: pivot ? [ pivot ] : [] }
     }
 
     setEngineering()
@@ -254,7 +261,7 @@ export class ZoneIdentity
         // (0.1-1.3, 0.77-1.05, -3.8 to -5), which sits buried in the dense
         // procedural grass covering that part of the terrain and would make
         // an easy-to-reach landmark effectively invisible.
-        this.placeGlowDisc(area, 'emissiveOrangeRadialGradient', 1.0, [ -1.3, -3.2, -0.6 ])
+        const glow = this.placeGlowDisc(area, 'emissiveOrangeRadialGradient', 1.0, [ -1.3, -3.2, -0.6 ])
 
         const core = new THREE.Mesh(
             new THREE.IcosahedronGeometry(0.16, 1),
@@ -270,7 +277,12 @@ export class ZoneIdentity
             core.scale.setScalar(1 + Math.sin(pulse * 2) * 0.12)
         })
 
-        this.placeSign(area, '03', 'ENGINEERING', PALETTE.amber, [ -4.14, -1.3, 0.04 ])
+        const sign = this.placeSign(area, '03', 'ENGINEERING', PALETTE.amber, [ -4.14, -1.3, 0.04 ])
+
+        // core isn't a highlight target: it already runs its own continuous
+        // scale-pulse every tick (above), which would otherwise fight a
+        // highlight gsap tween on the same .scale property every frame.
+        this.stands.engineering = { glow, sign, pulse: [] }
     }
 
     setQualitaet()
@@ -289,7 +301,7 @@ export class ZoneIdentity
         // its original use elsewhere - looks blown-out as a calm ground
         // disc, so reuse the lime gradient here too (proven contained look
         // in Konzept); the ring + checkmark carry this zone's own identity.
-        this.placeGlowDisc(area, 'emissiveLimeRadialGradient', 1.1, [ base.x, base.y, base.z ])
+        const glow = this.placeGlowDisc(area, 'emissiveLimeRadialGradient', 1.1, [ base.x, base.y, base.z ])
 
         const ring = new THREE.Mesh(
             new THREE.TorusGeometry(0.55, 0.12, 6, 12),
@@ -313,7 +325,45 @@ export class ZoneIdentity
 
         this.spinners.push((delta) => { ring.rotation.y += delta * 0.3 })
 
-        this.placeSign(area, '04', 'QUALITÄT', PALETTE.lime, [ base.x + 0.7, base.y + 1.3, base.z ])
+        const sign = this.placeSign(area, '04', 'QUALITÄT', PALETTE.lime, [ base.x + 0.7, base.y + 1.3, base.z ])
+
+        this.stands.qualitaet = { glow, sign, pulse: [ ring, tickShort, tickLong ] }
+    }
+
+    /**
+     * Subtle proximity feedback for the Phase 4.1 walk-up presentation
+     * stands: grows the zone's existing glow disc/sign/landmark pieces
+     * slightly and keeps a gentle breathing loop going while eligible.
+     * Deliberately per-mesh scale only, never a material property - the
+     * emissive gradient materials are singletons shared by name across
+     * multiple zones (see Materials.js), so mutating one would bleed into
+     * every other zone using the same gradient.
+     */
+    setStandHighlight(id, active)
+    {
+        const stand = this.stands[id]
+        if(!stand)
+            return
+
+        for(const target of [ stand.glow, stand.sign, ...stand.pulse ])
+        {
+            gsap.killTweensOf(target.scale)
+
+            if(active)
+            {
+                gsap.to(target.scale, {
+                    x: 1.16, y: 1.16, z: 1.16,
+                    duration: 0.9,
+                    ease: 'sine.inOut',
+                    yoyo: true,
+                    repeat: -1,
+                })
+            }
+            else
+            {
+                gsap.to(target.scale, { x: 1, y: 1, z: 1, duration: 0.35, ease: 'power2.out' })
+            }
+        }
     }
 
     /**
