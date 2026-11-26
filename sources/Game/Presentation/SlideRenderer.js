@@ -19,7 +19,7 @@ import { STATION_ORDER, STATIONS } from './PresentationStations.js'
 // compact editorial column.
 const WIDE_LAYOUTS = new Set([
     'idea', 'media', 'challenge', 'stack', 'flow', 'learnings',
-    'table-hours', 'table-challenges', 'audit', 'testing', 'demo',
+    'table-challenges', 'audit', 'testing', 'demo',
 ])
 
 // ---------------------------------------------------------------------------
@@ -204,7 +204,7 @@ function iconSVG(name, size)
  */
 function flowDiagramSVG(steps)
 {
-    const W = 980, H = 320
+    const W = 980, H = 252
     const lanes = [ { x: 150, label: 'Client', color: PALETTE.lime400 }, { x: 500, label: 'Backend', color: PALETTE.amber }, { x: 850, label: 'Datenbank', color: PALETTE.sky } ]
 
     // Fixed message sequence (request/response topology) matching the six
@@ -218,8 +218,8 @@ function flowDiagramSVG(steps)
         { from: 1, to: 0, dir: 'res', label: '6 · Distanz + Punkte + echter Standort' },
     ]
 
-    const top = 66
-    const rowGap = 40
+    const top = 50
+    const rowGap = 32
     const ys = messages.map((_, i) => top + i * rowGap)
 
     const head = lanes.map((l) => `
@@ -454,12 +454,12 @@ function renderMedia(slide)
             <div class="versus">
                 <div class="versus__side">
                     ${figure(lobby, 'shot--lobby')}
-                    <p class="versus__caption">${slide.bullets[0].title} — ${slide.bullets[0].text}</p>
+                    <p class="versus__caption"><strong>${slide.bullets[0].title}</strong> ${slide.bullets[0].text}</p>
                 </div>
                 <span class="versus__mark" aria-hidden="true">VS</span>
                 <div class="versus__side">
                     ${figure(round, 'shot--round')}
-                    <p class="versus__caption">${slide.bullets[1].title} — ${slide.bullets[1].text}</p>
+                    <p class="versus__caption"><strong>${slide.bullets[1].title}</strong> ${slide.bullets[1].text}</p>
                 </div>
             </div>
             ${slide.footnote ? note(slide.footnote, 'note--muted') : ''}
@@ -473,10 +473,13 @@ function renderChallenge(slide)
 {
     return `
         <div class="challenge">
-            <figure class="challenge__pano"><img src="${slide.screenshot.src}" alt="${slide.screenshot.alt}" loading="lazy"><figcaption>${slide.screenshot.caption ?? ''}</figcaption></figure>
-            <div class="challenge__ask">
+            <figure class="challenge__pano">
+                <img src="${slide.screenshot.src}" alt="${slide.screenshot.alt}" loading="lazy">
                 <span class="challenge__ping" aria-hidden="true"></span>
+            </figure>
+            <div class="challenge__ask">
                 ${list(slide.instructions)}
+                <span class="challenge__credit">${slide.screenshot.caption ?? ''}</span>
             </div>
         </div>
     `
@@ -528,9 +531,9 @@ function renderFlow(slide)
         <div class="flow">
             ${flowDiagramSVG(slide.steps)}
             <ol class="flow__legend">${legend}</ol>
-            <div class="flow__notes">
-                ${note(slide.multiplayerNote)}
-                ${note(slide.caveat, 'note--callout')}
+            <div class="flow__notes note--callout">
+                <p>${slide.multiplayerNote}</p>
+                <p>${slide.caveat}</p>
             </div>
         </div>
     `
@@ -540,18 +543,20 @@ function renderFlow(slide)
 
 function renderHours(slide)
 {
-    const bars = slide.items.map((item) => `
+    // All planHours/actualHours values are currently null (no estimation was
+    // ever documented in the project repo) — rendering a bar chart against
+    // zero real data would read as a broken chart, not an honest state. Show
+    // the real work-package breakdown as a plain list and say so instead.
+    const rows = slide.items.map((item) => `
         <li class="hours__row">
+            <span class="hours__dot" aria-hidden="true"></span>
             <span class="hours__label">${item.label}</span>
-            <span class="hours__track hours__track--plan"><i></i><em>${item.planHours ?? '—'}</em></span>
-            <span class="hours__track hours__track--ist"><i></i><em>${item.actualHours ?? '—'}</em></span>
         </li>
     `).join('')
 
     return `
         <div class="hours">
-            <div class="hours__key"><span><i class="is-plan"></i>Plan (h)</span><span><i class="is-ist"></i>Ist (h)</span></div>
-            <ol class="hours__rows">${bars}</ol>
+            <ol class="hours__rows">${rows}</ol>
             ${note(slide.note, 'note--callout')}
         </div>
     `
@@ -596,13 +601,30 @@ function renderLearnings(slide)
 function renderAudit(slide)
 {
     const { totalPass, totalPartial, totalFail, total, mandatoryPass, mandatoryTotal } = slide.summary
-    const rows = slide.rows.map((row) => `
+
+    const tableRows = (rows) => rows.map((row) => `
         <tr class="${row.critical ? 'is-critical' : ''}" data-status="${row.status}">
             <td class="audit__nr">${row.nr}</td>
             <td>${row.text}${row.critical ? '<span class="audit__critical-tag">kritisch</span>' : ''}</td>
             <td>${badge(row.status)}</td>
         </tr>
     `).join('')
+
+    const table = (rows) => `
+        <div class="audit__table-wrap">
+            <table class="audit__table">
+                <thead><tr><th>Nr.</th><th>Anforderung</th><th>Status</th></tr></thead>
+                <tbody>${tableRows(rows)}</tbody>
+            </table>
+        </div>
+    `
+
+    // The 10 rows arrive pre-grouped by status (fail, then partial, then
+    // pass) — splitting the array in half keeps all 5 "nicht bestanden"
+    // findings together in the left column, getting primary visual weight,
+    // instead of one tall list where half the rows never fit the viewport.
+    const left = slide.rows.slice(0, 5)
+    const right = slide.rows.slice(5)
 
     return `
         <div class="audit">
@@ -620,18 +642,14 @@ function renderAudit(slide)
                 </div>
             </div>
             <div class="audit__cols">
-                <div class="audit__table-wrap">
-                    <table class="audit__table">
-                        <thead><tr><th>Nr.</th><th>Anforderung</th><th>Status</th></tr></thead>
-                        <tbody>${rows}</tbody>
-                    </table>
-                </div>
-                <div class="audit__method">
-                    <h4>Methodik</h4>
-                    <ul class="list list--compact">${slide.methodology.map((m) => `<li>${m}</li>`).join('')}</ul>
-                    ${note(slide.closing, 'note--muted')}
-                </div>
+                ${table(left)}
+                ${table(right)}
             </div>
+            <div class="audit__method">
+                <h4>Methodik</h4>
+                <ul class="audit__method-chips">${slide.methodology.map((m) => `<li>${m}</li>`).join('')}</ul>
+            </div>
+            ${note(slide.closing, 'note--muted')}
         </div>
     `
 }
@@ -660,10 +678,10 @@ function renderTesting(slide)
             <ol class="tiers">${tiers}</ol>
             <div class="testing__ci">
                 <h4>CI-Pipeline</h4>
-                ${list(slide.ciSteps)}
+                <ul class="testing__ci-chips">${slide.ciSteps.map((step) => `<li>${step}</li>`).join('')}</ul>
             </div>
             <div class="testing__caveats">
-                ${slide.caveats.map((caveat) => note(caveat, 'note--callout')).join('')}
+                ${slide.caveats.map((caveat) => `<p>${caveat}</p>`).join('')}
             </div>
         </div>
     `
@@ -692,7 +710,7 @@ function renderConclusion(slide)
     return `
         <div class="hero hero--closing">
             <p class="hero__eyebrow">${slide.eyebrow}</p>
-            <div class="hero__earth">${polyEarthSVG(300)}</div>
+            <div class="hero__earth">${polyEarthSVG(220)}</div>
             <div class="hero__lines">${slide.lines.map((line) => `<span>${line}</span>`).join('')}</div>
             <p class="hero__subline">${slide.subline}</p>
             <div class="hero__columns">
@@ -774,7 +792,7 @@ export class SlideRenderer
                 <span><i>&#8594;</i> / <i>Space</i> weiter</span>
                 <span><i>&#8592;</i> zurück</span>
                 <span class="presentation__hint--tour"><i>Home</i>/<i>End</i> Anfang/Ende</span>
-                <span class="presentation__hint--tour"><i>M</i> erkunden</span>
+                <span class="presentation__hint--tour"><i>T</i> erkunden</span>
                 <span class="presentation__hint--station"><i>Esc</i> erkunden</span>
                 <span><i>F</i> Vollbild</span>
             </div>
@@ -839,12 +857,44 @@ export class SlideRenderer
         this.elements.subtitle.textContent = slide.subtitle ?? ''
         this.elements.content.innerHTML = renderContent(slide)
         this.elements.watermark.textContent = String(slide.id).padStart(2, '0')
+        this._applyFitGuard()
 
         if(sectionMeta)
         {
             this.elements.sectionCount.textContent = `Folie ${sectionMeta.indexInSection} von ${sectionMeta.totalInSection}`
             this.elements.finish.classList.toggle('is-visible', sectionMeta.isFinal)
         }
+    }
+
+    /**
+     * Last-resort overflow guard — real fit is achieved by trimming each
+     * slide's content to its available space (see slides.js/this file's
+     * per-layout markup), this only catches what that misses (a rehearsal
+     * screen smaller than expected, a future content edit that creeps past
+     * the fold). Scales `.presentation__content` down, never below 0.9, so
+     * nothing ever hard-clips — it never grows text past 1, so it can't
+     * make an already-fitting slide bigger either.
+     */
+    _applyFitGuard()
+    {
+        const content = this.elements.content
+        content.style.transform = ''
+
+        const measure = () =>
+        {
+            const rect = content.getBoundingClientRect()
+            const margin = 28
+            const overflow = rect.bottom - (window.innerHeight - margin)
+            if(overflow > 0 && rect.height > 0)
+            {
+                const scale = Math.max(0.9, 1 - (overflow / rect.height))
+                content.style.transformOrigin = 'top left'
+                content.style.transform = `scale(${scale})`
+            }
+        }
+
+        measure()
+        requestAnimationFrame(measure)
     }
 
     /** Set which flow (tour / station) drives the visible chrome. */

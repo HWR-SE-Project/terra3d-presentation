@@ -29,6 +29,37 @@
 
         <canvas class="js-canvas"></canvas>
 
+        <!-- Map trigger -->
+        <button class="js-map-trigger map-trigger">
+            <div class="button-inner">
+                <div class="icon-container">
+                    <img class="map-icon" src="ui/map.svg" loading="lazy">
+                </div>
+            </div>
+        </button>
+
+    </div>
+
+    <!-- Modals -->
+    <div class="js-modals modals">
+
+        <!-- Map -->
+        <div class="js-modal modal map" data-name="map">
+
+            <button class="js-close close">
+                <div class="button-inner">
+                    <div class="icon-container">
+                        <img class="icon is-default" src="ui/close.svg" loading="lazy">
+                    </div>
+                </div>
+            </button>
+
+            <div class="js-map-container map-container">
+                <img class="js-texture texture" loading="lazy">
+                <div class="js-player player"></div>
+            </div>
+        </div>
+
     </div>
 
     <script type="module" src="./index.js"></script>

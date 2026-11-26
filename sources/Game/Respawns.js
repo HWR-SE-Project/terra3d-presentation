@@ -1,5 +1,6 @@
 import * as THREE from 'three/webgpu'
 import { Game } from './Game.js'
+import { STATIONS } from './Presentation/PresentationStations.js'
 
 export class Respawns
 {
@@ -23,12 +24,19 @@ export class Respawns
 
             name = name.charAt(0).toLowerCase() + name.slice(1)
 
+            // For the four station respawns, PresentationStations.js (not the
+            // baked static/respawns.glb transform) is the source of truth -
+            // see Areas.js. The baked rotation still reads correctly though:
+            // it points from the old respawn point towards that zone's
+            // landmark, and a pure translation never changes that direction.
+            const station = STATIONS[name]
+
             const item = {
                 name: name,
                 position: new THREE.Vector3(
-                    child.position.x,
+                    station ? station.standPoint.x : child.position.x,
                     4,
-                    child.position.z
+                    station ? station.standPoint.z : child.position.z
                 ),
                 rotation: child.rotation.y
             }

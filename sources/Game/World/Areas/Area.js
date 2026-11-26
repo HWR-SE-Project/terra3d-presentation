@@ -36,6 +36,11 @@ export class Area
         const children = [...this.model.children]
         for(const child of children)
         {
+            // Original "Bruno Simon" name lettering (baked into areas.glb's landing zone),
+            // replaced by per-station NameLettering signage
+            if(/^refLetters/i.test(child.name))
+                continue
+
             if(typeof child.userData.preventAutoAdd === 'undefined' || child.userData.preventAutoAdd === false)
             {
                 const object = this.game.objects.addFromModel(

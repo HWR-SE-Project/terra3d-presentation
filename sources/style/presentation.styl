@@ -31,6 +31,18 @@ shadow-card = 0 12px 32px alpha(#050310, 0.45), 0 2px 6px alpha(#050310, 0.3)
 shadow-panel = 0 26px 60px alpha(#050310, 0.55), 0 3px 10px alpha(#050310, 0.32)
 hairline = 1px solid alpha(#ffffff, 0.1)
 
+// Fluid type scale — every size below is readable from the back of a
+// lecture hall at typical presentation-display widths (1280–1920px) and
+// scales gently with viewport width instead of sitting at a fixed px/rem
+// value. Only hero/title sizes (which already used clamp()) sit outside
+// this scale; everything else routes through one of these tokens.
+fs-2xs = clamp(0.84rem, 0.78rem + 0.3vw, 0.95rem)   // source tags, micro-labels
+fs-xs = clamp(0.92rem, 0.85rem + 0.35vw, 1.05rem)    // captions, pills, badges, muted notes
+fs-sm = clamp(1.02rem, 0.94rem + 0.4vw, 1.16rem)     // secondary body, compact lists, table cells
+fs-base = clamp(1.1rem, 1rem + 0.45vw, 1.28rem)      // primary body copy, list items, notes
+fs-md = clamp(1.22rem, 1.1rem + 0.55vw, 1.42rem)     // card/step sub-headings
+fs-lg = clamp(1.42rem, 1.25rem + 0.75vw, 1.7rem)     // emphatic step headings
+
 .presentation
     position fixed
     top 0
@@ -295,13 +307,13 @@ hairline = 1px solid alpha(#ffffff, 0.1)
 
     &__subtitle
         margin-bottom 1.1em
-        font-size 1.1rem
+        font-size clamp(1.15rem, 1.05rem + 0.4vw, 1.3rem)
         font-weight 600
         color muted
 
     &__content
         width 100%
-        font-size 1rem
+        font-size fs-base
         line-height 1.5
 
     // --- shared primitives ----------------------------------------------------
@@ -315,7 +327,7 @@ hairline = 1px solid alpha(#ffffff, 0.1)
 
         &--compact
             gap 0.34em
-            font-size 0.9rem
+            font-size fs-sm
             opacity 0.88
 
         li
@@ -335,11 +347,11 @@ hairline = 1px solid alpha(#ffffff, 0.1)
 
     .note
         opacity 0.86
-        font-size 0.92rem
+        font-size fs-base
 
         &--muted
-            opacity 0.6
-            font-size 0.84rem
+            opacity 0.64
+            font-size fs-sm
 
         &--callout
             opacity 0.96
@@ -347,7 +359,7 @@ hairline = 1px solid alpha(#ffffff, 0.1)
             border-radius 16px
             border-left 3px solid var(--accent, lime400)
             background alpha(space900, 0.5)
-            font-size 0.86rem
+            font-size fs-sm
 
     .pill
         display inline-block
@@ -357,7 +369,7 @@ hairline = 1px solid alpha(#ffffff, 0.1)
         background alpha(space800, 0.5)
         font-family "Fredoka", ui-rounded, sans-serif
         font-weight 500
-        font-size 0.8rem
+        font-size fs-xs
         letter-spacing 0.01em
         color cream
         white-space nowrap
@@ -366,7 +378,7 @@ hairline = 1px solid alpha(#ffffff, 0.1)
         display inline-block
         padding 3px 11px
         border-radius 999px
-        font-size 0.74rem
+        font-size fs-xs
         font-weight 700
         white-space nowrap
         letter-spacing 0.01em
@@ -400,7 +412,7 @@ hairline = 1px solid alpha(#ffffff, 0.1)
         figcaption
             margin-top 0.45em
             opacity 0.5
-            font-size 0.74rem
+            font-size fs-2xs
 
     // ==========================================================================
     // Title (01)
@@ -538,18 +550,18 @@ hairline = 1px solid alpha(#ffffff, 0.1)
         .route__index
             font-family "Fredoka", ui-rounded, sans-serif
             font-weight 700
-            font-size 0.82rem
+            font-size fs-xs
             letter-spacing 0.1em
             color var(--accent, lime400)
 
         .route__label
             font-family "Fredoka", ui-rounded, sans-serif
             font-weight 600
-            font-size 1.12rem
+            font-size fs-lg
             line-height 1.15
 
         .route__detail
-            font-size 0.82rem
+            font-size fs-sm
             color muted
             line-height 1.35
 
@@ -685,7 +697,7 @@ hairline = 1px solid alpha(#ffffff, 0.1)
             display block
             font-family "Fredoka", ui-rounded, sans-serif
             font-weight 700
-            font-size 0.8rem
+            font-size fs-xs
             letter-spacing 0.14em
             color var(--accent, lime400)
             opacity 0.8
@@ -693,10 +705,10 @@ hairline = 1px solid alpha(#ffffff, 0.1)
         .idea__step h3
             margin 0.2em 0 0.4em
             font-family "Fredoka", ui-rounded, sans-serif
-            font-size 1.4rem
+            font-size fs-lg
 
         .idea__step p
-            font-size 0.92rem
+            font-size fs-base
             color muted
             line-height 1.5
             opacity 0.95
@@ -709,7 +721,7 @@ hairline = 1px solid alpha(#ffffff, 0.1)
             padding-top 1.4em
 
         .idea__audience
-            font-size 0.96rem
+            font-size fs-md
             font-weight 600
             color cream
             opacity 0.9
@@ -774,7 +786,7 @@ hairline = 1px solid alpha(#ffffff, 0.1)
         .member__role
             color var(--accent, lime400)
             font-weight 600
-            font-size 0.9rem
+            font-size fs-md
             margin-bottom 0.6em
 
         .member__packages
@@ -788,7 +800,7 @@ hairline = 1px solid alpha(#ffffff, 0.1)
                 padding 6px 13px
                 border-radius 999px
                 border 1px solid alpha(cream, 0.2)
-                font-size 0.8rem
+                font-size fs-xs
                 color muted
                 background alpha(space800, 0.5)
 
@@ -819,6 +831,11 @@ hairline = 1px solid alpha(#ffffff, 0.1)
             flex-direction column
             gap 20px
 
+            .shot--secondary img
+                max-height 26vh
+                object-fit cover
+                object-position top
+
         .callouts
             list-style none
             margin 0
@@ -847,12 +864,12 @@ hairline = 1px solid alpha(#ffffff, 0.1)
 
             strong
                 font-family "Fredoka", ui-rounded, sans-serif
-                font-size 0.98rem
+                font-size fs-md
                 display block
                 margin-bottom 0.2em
 
             p
-                font-size 0.84rem
+                font-size fs-sm
                 color muted
                 line-height 1.45
 
@@ -898,7 +915,7 @@ hairline = 1px solid alpha(#ffffff, 0.1)
             display inline-block
             font-family "Fredoka", ui-rounded, sans-serif
             font-weight 700
-            font-size 1.25rem
+            font-size fs-lg
             letter-spacing 0.06em
             text-transform uppercase
             color var(--accent, lime400)
@@ -912,7 +929,7 @@ hairline = 1px solid alpha(#ffffff, 0.1)
             gap 0.6em
 
             li
-                font-size 0.85rem
+                font-size fs-sm
                 color muted
                 line-height 1.45
 
@@ -925,6 +942,10 @@ hairline = 1px solid alpha(#ffffff, 0.1)
             grid-template-columns repeat(3, minmax(0, 1fr))
             gap 18px
 
+            .shot img
+                max-height 34vh
+                object-fit cover
+
             @media only screen and (max-width 900px)
                 grid-template-columns minmax(0, 1fr)
 
@@ -932,7 +953,7 @@ hairline = 1px solid alpha(#ffffff, 0.1)
         .media--versus
             display flex
             flex-direction column
-            gap 1.4em
+            gap 1em
 
         .versus
             display grid
@@ -946,15 +967,20 @@ hairline = 1px solid alpha(#ffffff, 0.1)
         .versus__side
             display flex
             flex-direction column
-            gap 10px
+            gap 8px
+
+            .shot img
+                max-height 44vh
+                object-fit cover
 
         .versus__caption
-            font-size 0.85rem
+            font-size fs-sm
             color muted
-            line-height 1.45
+            line-height 1.4
 
-            // reset strong colouring helper if reused
-            font-weight 600
+            strong
+                color cream
+                font-weight 700
 
         .versus__mark
             display flex
@@ -995,63 +1021,56 @@ hairline = 1px solid alpha(#ffffff, 0.1)
             width 100%
 
         .challenge
-            position relative
+            display flex
+            flex-direction column
+            gap 18px
 
         .challenge__pano
+            position relative
             margin 0
 
             img
                 display block
                 width 100%
-                max-height 62vh
+                max-height 52vh
                 object-fit cover
                 border-radius 24px
                 border hairline
                 box-shadow shadow-panel
 
-            figcaption
-                position absolute
-                left 18px
-                bottom 16px
-                margin 0
-                padding 6px 12px
-                border-radius 999px
-                background alpha(space900, 0.7)
-                font-size 0.72rem
-                opacity 0.7
-
         .challenge__ask
-            position absolute
-            left 50%
-            top 26px
-            transform translateX(-50%)
             display flex
             flex-direction column
             align-items center
-            gap 4px
-            padding 18px 34px
+            gap 6px
+            padding 16px 30px
             border-radius 20px
-            background alpha(space900, 0.78)
-            border 1px solid alpha(cream, 0.18)
+            background alpha(space900, 0.6)
+            border 1px solid alpha(cream, 0.16)
             box-shadow shadow-card
             text-align center
 
             .list
                 align-items center
-                gap 0.2em
+                gap 0.25em
 
             .list li
                 padding-left 0
-                font-size 0.88rem
+                font-size fs-base
                 color muted
 
                 &::before
                     display none
 
+        .challenge__credit
+            margin-top 0.3em
+            font-size fs-2xs
+            opacity 0.5
+
         .challenge__ping
             position absolute
-            right -8px
-            top -8px
+            right 16px
+            top 16px
             width 18px
             height 18px
             border-radius 50%
@@ -1073,20 +1092,20 @@ hairline = 1px solid alpha(#ffffff, 0.1)
         .stack
             display flex
             flex-direction column
-            gap 1.3em
+            gap 1em
             margin-top 0.4em
 
         .stack__diagram
             display flex
             flex-direction column
-            gap 12px
+            gap 10px
 
         .stack__layer
             display grid
             grid-template-columns 200px minmax(0, 1fr)
             gap 24px
             align-items center
-            padding 16px 22px
+            padding 13px 22px
             border-radius 18px
             border 1px solid alpha(cream, 0.12)
             border-left 4px solid var(--layer, lime400)
@@ -1099,11 +1118,11 @@ hairline = 1px solid alpha(#ffffff, 0.1)
         .stack__layer-head
             h3
                 font-family "Fredoka", ui-rounded, sans-serif
-                font-size 1.05rem
+                font-size fs-md
                 margin-bottom 0.1em
 
             p
-                font-size 0.78rem
+                font-size fs-2xs
                 color muted
 
         .stack__body
@@ -1118,7 +1137,7 @@ hairline = 1px solid alpha(#ffffff, 0.1)
             align-items center
 
         .stack__external
-            font-size 0.88rem
+            font-size fs-sm
             color muted
             opacity 0.9
 
@@ -1127,7 +1146,7 @@ hairline = 1px solid alpha(#ffffff, 0.1)
             flex-wrap wrap
             align-items center
             gap 8px
-            font-size 0.88rem
+            font-size fs-sm
             color muted
 
     // ==========================================================================
@@ -1153,10 +1172,13 @@ hairline = 1px solid alpha(#ffffff, 0.1)
             list-style none
             margin 0
             display grid
-            grid-template-columns repeat(2, minmax(0, 1fr))
-            gap 8px 30px
+            grid-template-columns repeat(3, minmax(0, 1fr))
+            gap 6px 24px
 
-            @media only screen and (max-width 900px)
+            @media only screen and (max-width 1100px)
+                grid-template-columns repeat(2, minmax(0, 1fr))
+
+            @media only screen and (max-width 640px)
                 grid-template-columns minmax(0, 1fr)
 
         .flow__legend-item
@@ -1164,7 +1186,7 @@ hairline = 1px solid alpha(#ffffff, 0.1)
             grid-template-columns 30px minmax(0, 1fr)
             gap 12px
             align-items start
-            padding 6px 0
+            padding 4px 0
             border-bottom 1px solid alpha(cream, 0.1)
 
         .flow__legend-n
@@ -1182,101 +1204,67 @@ hairline = 1px solid alpha(#ffffff, 0.1)
             font-size 0.8rem
 
         .flow__legend-item strong
-            font-size 0.82rem
+            font-size fs-xs
             display block
             margin-bottom 0.12em
 
         .flow__legend-item p
-            font-size 0.76rem
+            font-size fs-2xs
             color muted
-            line-height 1.35
+            line-height 1.3
 
         .flow__notes
-            display grid
-            grid-template-columns repeat(2, minmax(0, 1fr))
-            gap 14px
+            display flex
+            flex-direction column
+            gap 0.5em
 
-            @media only screen and (max-width 900px)
-                grid-template-columns minmax(0, 1fr)
+            p
+                margin 0
 
     // ==========================================================================
     // Aufwandsschätzung (14)
     // ==========================================================================
 
     &[data-layout="table-hours"]
+        .presentation__stage
+            align-items center
+
+        .presentation__content
+            max-width 760px
+
         .hours
             display flex
             flex-direction column
-            gap 1.4em
+            gap 1.6em
             margin-top 0.4em
-
-        .hours__key
-            display flex
-            gap 24px
-            font-size 0.82rem
-            color muted
-
-            span
-                display flex
-                align-items center
-                gap 8px
-
-            i
-                width 14px
-                height 14px
-                border-radius 4px
-
-                &.is-plan
-                    background alpha(muted, 0.4)
-
-                &.is-ist
-                    background var(--accent, lime400)
 
         .hours__rows
             list-style none
             margin 0
             display flex
             flex-direction column
-            gap 14px
+            gap 12px
 
         .hours__row
-            display grid
-            grid-template-columns 300px minmax(0, 1fr) minmax(0, 1fr)
-            gap 20px
-            align-items center
-
-            @media only screen and (max-width 900px)
-                grid-template-columns minmax(0, 1fr)
-                gap 8px
-
-        .hours__label
-            font-size 0.92rem
-            font-weight 600
-
-        .hours__track
             display flex
             align-items center
-            gap 12px
-            height 30px
+            gap 16px
+            padding 15px 22px
+            border-radius 14px
+            border 1px solid alpha(cream, 0.12)
+            background alpha(space900, 0.4)
 
-            i
-                flex-shrink 0
-                height 16px
-                width 40%
-                border-radius 6px
-                background alpha(muted, 0.18)
-                border 1px dashed alpha(cream, 0.25)
+        .hours__dot
+            flex-shrink 0
+            width 11px
+            height 11px
+            border-radius 50%
+            background alpha(muted, 0.35)
+            border 1.5px dashed alpha(cream, 0.4)
 
-            &--ist i
-                background unquote("rgba(var(--accent-rgb, 192, 246, 107), 0.16)")
-                border-color unquote("rgba(var(--accent-rgb, 192, 246, 107), 0.40)")
-
-            em
-                font-style normal
-                font-family "Fredoka", ui-rounded, sans-serif
-                font-weight 600
-                font-size 1rem
-                color muted
+        .hours__label
+            font-size fs-base
+            font-weight 600
 
     // ==========================================================================
     // Herausforderungen & Lösungen (15)
@@ -1288,15 +1276,15 @@ hairline = 1px solid alpha(#ffffff, 0.1)
             margin 0
             display flex
             flex-direction column
-            gap 14px
-            margin-top 0.4em
+            gap 10px
+            margin-top 0.3em
 
         .challenges__row
             display grid
             grid-template-columns minmax(0, 1fr) auto minmax(0, 1.4fr) auto
             gap 20px
             align-items center
-            padding 18px 22px
+            padding 13px 22px
             border-radius 18px
             border 1px solid alpha(cream, 0.12)
             background alpha(space900, 0.42)
@@ -1310,15 +1298,15 @@ hairline = 1px solid alpha(#ffffff, 0.1)
             p
                 font-weight 600
                 font-family "Fredoka", ui-rounded, sans-serif
-                font-size 1.02rem
-                line-height 1.3
+                font-size fs-md
+                line-height 1.25
 
         .challenges__tag
             display inline-block
-            margin-bottom 0.4em
-            font-size 0.68rem
+            margin-bottom 0.3em
+            font-size fs-2xs
             font-weight 700
-            letter-spacing 0.12em
+            letter-spacing 0.1em
             text-transform uppercase
             color alpha(cream, 0.45)
 
@@ -1332,15 +1320,15 @@ hairline = 1px solid alpha(#ffffff, 0.1)
 
         .challenges__solution
             p
-                font-size 0.86rem
+                font-size fs-sm
                 color muted
-                line-height 1.5
+                line-height 1.4
 
         .challenges__source
             display block
-            margin-top 0.5em
-            font-size 0.72rem
-            opacity 0.5
+            margin-top 0.35em
+            font-size fs-2xs
+            opacity 0.42
 
         .challenges__status
             justify-self end
@@ -1350,6 +1338,9 @@ hairline = 1px solid alpha(#ffffff, 0.1)
     // ==========================================================================
 
     &[data-layout="learnings"]
+        .presentation__stage
+            align-items center
+
         .presentation__content
             margin-top 0.6em
 
@@ -1395,17 +1386,17 @@ hairline = 1px solid alpha(#ffffff, 0.1)
         .audit
             display flex
             flex-direction column
-            gap 1.4em
-            margin-top 0.3em
+            gap 0.85em
+            margin-top 0.15em
 
         .audit__summary
             display flex
             flex-direction column
-            gap 16px
+            gap 12px
 
         .audit__bar
             display flex
-            height 34px
+            height 26px
             border-radius 999px
             overflow hidden
             border hairline
@@ -1436,7 +1427,7 @@ hairline = 1px solid alpha(#ffffff, 0.1)
             display flex
             flex-direction column
             gap 2px
-            padding 14px 18px
+            padding 9px 16px
             border-radius 14px
             border 1px solid alpha(cream, 0.12)
             background alpha(space900, 0.42)
@@ -1466,9 +1457,8 @@ hairline = 1px solid alpha(#ffffff, 0.1)
 
         .audit__cols
             display grid
-            grid-template-columns minmax(0, 1fr) 300px
-            gap 28px
-            align-items start
+            grid-template-columns repeat(2, minmax(0, 1fr))
+            gap 18px
 
             @media only screen and (max-width 900px)
                 grid-template-columns minmax(0, 1fr)
@@ -1482,19 +1472,20 @@ hairline = 1px solid alpha(#ffffff, 0.1)
         .audit__table
             width 100%
             border-collapse collapse
-            font-size 0.86rem
+            font-size fs-sm
 
             th, td
-                padding 10px 14px
+                padding 7px 12px
                 border-bottom 1px solid alpha(cream, 0.1)
                 text-align left
                 vertical-align top
+                line-height 1.25
 
             th
                 color muted
                 font-family "Fredoka", ui-rounded, sans-serif
                 font-weight 600
-                font-size 0.72rem
+                font-size fs-2xs
                 text-transform uppercase
                 letter-spacing 0.05em
 
@@ -1518,7 +1509,7 @@ hairline = 1px solid alpha(#ffffff, 0.1)
             background alpha(rose, 0.18)
             border 1px solid alpha(rose, 0.5)
             color #ff9da3
-            font-size 0.66rem
+            font-size fs-2xs
             font-weight 700
             letter-spacing 0.06em
             text-transform uppercase
@@ -1526,12 +1517,28 @@ hairline = 1px solid alpha(#ffffff, 0.1)
         .audit__method
             display flex
             flex-direction column
-            gap 12px
+            gap 8px
 
             h4
                 font-family "Fredoka", ui-rounded, sans-serif
-                font-size 0.95rem
+                font-size fs-sm
                 color lime300
+                margin 0
+
+        .audit__method-chips
+            list-style none
+            margin 0
+            display flex
+            flex-wrap wrap
+            gap 10px
+
+            li
+                padding 7px 16px
+                border-radius 999px
+                border hairline
+                background alpha(space800, 0.5)
+                font-size fs-2xs
+                color muted
 
     // ==========================================================================
     // Testing (19)
@@ -1541,8 +1548,8 @@ hairline = 1px solid alpha(#ffffff, 0.1)
         .testing
             display flex
             flex-direction column
-            gap 1.5em
-            margin-top 0.4em
+            gap 1.1em
+            margin-top 0.3em
 
         .tiers
             list-style none
@@ -1555,7 +1562,7 @@ hairline = 1px solid alpha(#ffffff, 0.1)
                 grid-template-columns minmax(0, 1fr)
 
         .tiers__tier
-            padding 20px 22px
+            padding 16px 20px
             border-radius 18px
             border 1px solid alpha(cream, 0.12)
             background alpha(space900, 0.45)
@@ -1569,14 +1576,14 @@ hairline = 1px solid alpha(#ffffff, 0.1)
 
             h3
                 font-family "Fredoka", ui-rounded, sans-serif
-                font-size 1.05rem
+                font-size fs-md
 
         .tiers__tool
-            font-size 0.78rem
+            font-size fs-xs
             color muted
 
         .tiers__result
-            margin 0.5em 0 0.4em
+            margin 0.3em 0 0.25em
             font-family "Fredoka", ui-rounded, sans-serif
             font-weight 700
             font-size 1.9rem
@@ -1584,21 +1591,46 @@ hairline = 1px solid alpha(#ffffff, 0.1)
             line-height 1
 
         .tiers__note
-            font-size 0.8rem
+            font-size fs-sm
             color muted
-            line-height 1.45
+            line-height 1.4
 
         .testing__ci
             h4
                 font-family "Fredoka", ui-rounded, sans-serif
-                font-size 0.95rem
+                font-size fs-sm
                 color lime300
                 margin-bottom 0.5em
+
+        .testing__ci-chips
+            list-style none
+            margin 0
+            display flex
+            flex-wrap wrap
+            gap 10px
+
+            li
+                padding 8px 16px
+                border-radius 999px
+                border hairline
+                background alpha(space800, 0.5)
+                font-size fs-2xs
+                color muted
 
         .testing__caveats
             display flex
             flex-direction column
-            gap 10px
+            gap 0.35em
+            padding 11px 16px
+            border-radius 16px
+            border-left 3px solid var(--accent, lime400)
+            background alpha(space900, 0.5)
+
+            p
+                margin 0
+                font-size fs-sm
+                line-height 1.3
+                opacity 0.9
 
     // ==========================================================================
     // Live-Demo (20)
@@ -1734,10 +1766,10 @@ hairline = 1px solid alpha(#ffffff, 0.1)
                 color lime300
 
         .hero__subline
-            font-size 1.05rem
+            font-size fs-md
             color muted
             max-width 60ch
-            line-height 1.5
+            line-height 1.4
 
         .hero__columns
             display grid
@@ -1745,16 +1777,17 @@ hairline = 1px solid alpha(#ffffff, 0.1)
             gap 2em
             width 100%
             text-align left
-            margin 0.8em 0 1em
+            margin 0.6em 0 0.8em
 
             h3
                 font-family "Fredoka", ui-rounded, sans-serif
-                font-size 0.95rem
+                font-size fs-sm
                 color lime300
-                margin-bottom 0.5em
+                margin-bottom 0.4em
 
             .list
-                font-size 0.9rem
+                font-size fs-sm
+                gap 0.4em
 
             @media only screen and (max-width 640px)
                 grid-template-columns minmax(0, 1fr)

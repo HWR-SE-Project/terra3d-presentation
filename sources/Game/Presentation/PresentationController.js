@@ -5,8 +5,9 @@ import { CharacterDirector } from './CharacterDirector.js'
 import { SlideRenderer } from './SlideRenderer.js'
 import { MotionDirector } from './MotionDirector.js'
 import { StationStands } from './StationStands.js'
-import { STATION_ORDER, STATIONS, getStation, getRoute } from './PresentationStations.js'
+import { STATION_ORDER, STATIONS, getStation, getRoute, getRouteDistance } from './PresentationStations.js'
 import { getSlide, getDefinedSlideIds } from './slides.js'
+import { clamp } from '../utilities/maths.js'
 
 /**
  * Single source of truth for presentation state. Three mutually exclusive
@@ -72,7 +73,7 @@ export class PresentationController
             { name: 'presentationLast',       categories: [ 'tour' ],                              keys: [ 'Keyboard.End' ] },
             { name: 'presentationFullscreen', categories: [ 'tour', 'station', 'wandering' ],     keys: [ 'Keyboard.KeyF' ] },
             { name: 'presentationEscape',     categories: [ 'tour', 'station', 'wandering' ],     keys: [ 'Keyboard.Escape' ] },
-            { name: 'presentationModeToggle', categories: [ 'tour', 'wandering' ],                 keys: [ 'Keyboard.KeyM' ] },
+            { name: 'presentationModeToggle', categories: [ 'tour', 'wandering' ],                 keys: [ 'Keyboard.KeyT' ] },
         ])
 
         const on = (name, handler) =>
@@ -351,8 +352,15 @@ export class PresentationController
 
         await this.motionDirector.exit(this.currentSlide, 'cross')
 
+        // Timed against how long the character will actually take to walk
+        // the route (CharacterDirector always walks it at walkSpeed, never
+        // runSpeed - see CharacterDirector.js), not the waypoint count - with
+        // stations now tens of world units apart, a fixed short duration
+        // would leave the camera sitting at the destination framing for most
+        // of the walk instead of travelling together with it.
         const route = getRoute(this.currentStationId, targetStation.id)
-        const duration = Math.max(2.2, Math.min(4.5, route.length * 2))
+        const distance = getRouteDistance(route)
+        const duration = clamp(distance / this.game.physicalCharacter.walkSpeed, 2.5, 20)
 
         await Promise.all([
             this.characterDirector.walkRoute(route, targetStation.facingYRotation),

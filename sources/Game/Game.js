@@ -34,6 +34,7 @@ import { Reveal } from './Reveal.js'
 import { Quality } from './Quality.js'
 import { PreRenderer } from './PreRenderer.js'
 import { PresentationController } from './Presentation/PresentationController.js'
+import { Map } from './Map.js'
 
 export class Game
 {
@@ -152,6 +153,7 @@ export class Game
         this.world.step(1)
         this.overlay = new Overlay()
         this.presentation = new PresentationController()
+        this.map = new Map()
 
         // Pre-render if quality high
         if(this.quality.level === 0 && this.rendering.renderer.backend.isWebGPUBackend)

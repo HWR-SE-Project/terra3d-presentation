@@ -6,9 +6,15 @@ export class Boundary
     {
         this.game = Game.getInstance()
 
-        // Bounding rectangle around the compact area cluster (landing, konzept, gameplay, engineering, qualitaet)
-        this.min = { x: -15, z: -30 }
-        this.max = { x: 75, z: 65 }
+        // Bounding rectangle around the spread-out area cluster (landing,
+        // konzept, gameplay, engineering, qualitaet - see Phase 9/
+        // PresentationStations.js), with ~15 units of margin beyond the
+        // outermost station centers. Terrain/physics (Floor.js, Terrain.js)
+        // only cover world-space [-96, 96] on each axis, with a kinematic
+        // "bedrock" slab (not real terrain) taking over past ±90 - this
+        // rectangle stays safely inside that.
+        this.min = { x: -25, z: -56 }
+        this.max = { x: 83, z: 86 }
 
         this.halfHeight = 20
         this.centerY = 5

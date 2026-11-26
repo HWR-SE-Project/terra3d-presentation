@@ -71,6 +71,7 @@ export class MotionDirector
         this._splitTexts = []
         this._idle = null
         this._exitResolve = null
+        this._pendingRender = null
         this._reduced = typeof window !== 'undefined' && window.matchMedia(REDUCED_QUERY).matches
 
         this._currentSlide = null
@@ -188,6 +189,7 @@ export class MotionDirector
 
         const doRender = () =>
         {
+            this._pendingRender = null
             render()
             this.stepIndex = backward ? spec.steps.length : 0
             if(!backward)
@@ -216,6 +218,7 @@ export class MotionDirector
             this._flipState = null
         }
 
+        this._pendingRender = doRender
         this.track(gsap.to(this.elements.stage, {
             autoAlpha: 0,
             x: backward ? 34 : -34,
@@ -273,6 +276,19 @@ export class MotionDirector
 
     kill()
     {
+        // A same-station transition() schedules its slide-swap (render()) as
+        // a tween onComplete - killing that tween below (rapid repeated
+        // next/prev, or the station closing mid-transition) would silently
+        // drop it, leaving the incoming slide's content stuck in its
+        // pre-reveal hidden state. Flush it first so every slide always gets
+        // rendered, even if its decorative outro gets cut short.
+        if(this._pendingRender)
+        {
+            const flush = this._pendingRender
+            this._pendingRender = null
+            flush()
+        }
+
         for(const tween of this._tweens)
             tween?.kill()
         this._tweens.length = 0
@@ -660,7 +676,7 @@ export class MotionDirector
                         const pano = root.querySelector('.challenge__pano img')
                         const ask = root.querySelector('.challenge__ask')
                         if(pano) this.track(gsap.fromTo(pano, { autoAlpha: 0.5, scale: 1.07 }, { autoAlpha: 1, scale: 1, duration: this._dur(1.4), ease: 'power3.out', clearProps: 'transform,opacity,visibility' }))
-                        if(ask) this.track(gsap.fromTo(ask, { autoAlpha: 0, y: -16 }, { autoAlpha: 1, y: 0, duration: this._dur(0.6), delay: 0.4, ease: 'power2.out', clearProps: 'transform,opacity,visibility' }))
+                        if(ask) this.track(gsap.fromTo(ask, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: this._dur(0.6), delay: 0.4, ease: 'power2.out', clearProps: 'transform,opacity,visibility' }))
                     } },
                 ],
                 steps: [
@@ -704,9 +720,7 @@ export class MotionDirector
         if(layout === 'table-hours')
         {
             return {
-                enter: [
-                    { t: 'reveal', q: '.hours__key', o: { y: 10 } },
-                ],
+                enter: [],
                 steps: [
                     [ { t: 'reveal', q: '.hours__rows li', o: { stagger: 0.09 } } ],
                     [ { t: 'reveal', q: '.hours > .note', o: { y: 12 } } ],

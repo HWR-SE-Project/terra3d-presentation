@@ -176,14 +176,14 @@ export const SLIDES = {
         title: 'Gemeinsam raten',
         subtitle: 'Geteilte Runden, gleiche Bedingungen, ein Leaderboard',
         bullets: [
-            { title: 'Lobby per Code', text: 'Ein Lobby-Code lässt weitere Teilnehmende der gleichen Runde beitreten; der Host startet das Match.' },
-            { title: 'Gleiche Runden für alle', text: 'Alle Mitspieler:innen erhalten denselben Standort und dieselben Bedingungen; nach jeder Runde ein live aktualisiertes Leaderboard.' },
+            { title: 'Lobby per Code:', text: 'Beitreten per Code, Host startet das Match.' },
+            { title: 'Ein Leaderboard:', text: 'Gleicher Standort für alle, live aktualisiert.' },
         ],
         screenshots: [
             { src: '/presentation/screens/multiplayer-lobby.webp', alt: 'Mehrspieler-Lobby mit Beitrittscode', caption: 'Echter Screenshot, mp-lobby-waiting-desktop.png' },
             { src: '/presentation/screens/multiplayer-round.webp', alt: 'Mehrspieler-Runde mit Live-Leaderboard', caption: 'Echter Screenshot, multiplayer-game-desktop.png' },
         ],
-        footnote: 'Bestätigt durch einen echten Zwei-Sitzungs-Live-Test (Audit vom 24.11.2026) - stärkste Evidenzbasis aller 20 Anforderungen.',
+        footnote: 'Live bestätigt (Zwei-Sitzungs-Test, Audit 24.11.2026) - stärkste Evidenzbasis aller 20 Anforderungen.',
         notes: [
             'Lobby-Erstellung/-Beitritt über einen Code zeigen, gemeinsame Runden und das Live-Leaderboard erklären.',
             'Sowohl Backend-Logik als auch die Frontend-Anbindung sind implementiert: der Service-Boundary im committeten Code (frontend/src/services/index.ts, HEAD 4bee821) verweist auf die echte HTTP-Implementierung, nicht auf eine Mock-Schicht.',
@@ -242,7 +242,7 @@ export const SLIDES = {
             external: 'Google Maps / Street View · Google OAuth · Open-Meteo Wetter-API',
             quality: [ 'Vitest', 'Playwright', 'GitHub Actions CI', 'Docker Compose' ],
         },
-        environmentNote: 'Diese begehbare 3D-Umgebung ist das Präsentationswerkzeug für diesen Vortrag - kein Teil des TerraGuessr-Produkts. Eigener, komplett separater Stack: Three.js/WebGPU (Rendering), Rapier3D (Physik), GSAP (Animation), Vite, Stylus, einfaches JavaScript ohne UI-Framework.',
+        environmentNote: 'Diese 3D-Umgebung ist nur das Präsentationswerkzeug, kein Teil des Produkts - eigener Stack: Three.js/WebGPU, Rapier3D, GSAP, Vite.',
         notes: [
             'Frontend, Backend und Datenhaltung anhand der tatsächlich verwendeten Technologien erläutern (verifiziert gegen package.json und Prisma-Schema, Stand 24.11.2026).',
             'Die UI/Spiellogik-Trennung (Anforderung Nr. 20) ist laut Audit bestanden: Scoring und Distanzberechnung liegen in gemeinsamen, abhängigkeitsfreien Modulen, die von Einzel- und Mehrspieler-Pfaden gleichermaßen genutzt werden.',
@@ -305,19 +305,19 @@ export const SLIDES = {
         items: [
             {
                 challenge: 'Mehrspieler-Synchronisation',
-                solution: 'Gemeinsame Domain-Logik (Distanz/Punkte) plus serverseitige Lobby- und Match-Verwaltung; per Live-Test mit zwei unabhängigen Clients bestätigt.',
+                solution: 'Gemeinsame Domain-Logik plus serverseitige Lobby-Verwaltung - per Live-Test mit zwei unabhängigen Clients bestätigt.',
                 status: 'gelöst',
                 source: 'Audit R16, 24.11.2026',
             },
             {
                 challenge: 'Standort vor Bestätigung verdeckt halten',
-                solution: 'Die client-seitige Street-View-Anbindung löst die echten Koordinaten im Browser auf, bevor der Tipp bestätigt ist - laut Audit das größte architektonische Risiko des Projekts. Lösungsansätze (serverseitiges Rendering/Proxy) sind in Diskussion.',
+                solution: 'Die Street-View-Anbindung legt Koordinaten client-seitig vor Bestätigung offen - laut Audit das größte architektonische Risiko; Lösungsansätze in Diskussion.',
                 status: 'offen',
                 source: 'Audit R4, 24.11.2026',
             },
             {
                 challenge: 'Mock-Daten vs. echte Backend-Anbindung',
-                solution: 'Nach dem kompletten Frontend-Neuaufbau lief die UI zunächst gegen eine Mock-Datenschicht (dokumentiert in docs/phase2-integration-checklist.md, 21.11.2026). Ein einziger Swap-Point (services/index.ts) ermöglichte danach die Umstellung auf die echte Fastify-API ohne Komponentenänderungen - der committete Code (HEAD 4bee821) verweist bereits auf die HTTP-Implementierung.',
+                solution: 'Ein einziger Swap-Point (services/index.ts) ersetzte die Mock-Datenschicht ohne Komponentenänderungen durch die echte Fastify-API.',
                 status: 'gelöst',
                 source: 'docs/phase2-integration-checklist.md (21.11.2026); services/index.ts, Audit R16/R20 (24.11.2026)',
             },
@@ -414,7 +414,7 @@ export const SLIDES = {
         ],
         caveats: [
             'Testanzahl ist keine Code-Abdeckung - im Projekt existiert keine Coverage-Kennzahl.',
-            'Ein Teil der E2E-Spezifikationen gegen echte Kartendienste benötigt reale Zugangsdaten und läuft standardmäßig nicht in der CI - genau dieser Pfad enthielt laut Audit die schwerwiegendsten Befunde (Nr. 4, Nr. 5).',
+            'Tests gegen echte Kartendienste laufen nicht in der CI - genau dort lagen laut Audit die schwerwiegendsten Befunde (Nr. 4, Nr. 5).',
         ],
         notes: [
             'Die drei Testebenen nennen: Unit-Tests (Vitest), Integrationstests (gegen eine echte, isolierte Postgres-Instanz), End-to-End-Tests (Playwright).',
@@ -452,12 +452,12 @@ export const SLIDES = {
         lines: [ 'Entdecken.', 'Raten.', 'Dazulernen.' ],
         subline: 'Von der Projektidee zum Geografie-Spiel - und zu konkreten Erkenntnissen über Software Engineering.',
         achievements: [
-            'Die drei Projektziele (Entdecken, Raten, Vergleichen) sind in Einzel- und Mehrspieler funktional umgesetzt und live bestätigt.',
-            'Von 20 Anforderungen: 8 vollständig, 7 teilweise bestanden - keine als „nicht umsetzbar" bewertet.',
+            'Entdecken, Raten, Vergleichen - umgesetzt in Einzel- und Mehrspieler, live bestätigt.',
+            '8/20 Anforderungen vollständig, 7 teilweise - keine als „nicht umsetzbar" bewertet.',
         ],
         limitations: [
-            'Größte offene Einschränkung: Standort wird vor Bestätigung client-seitig offengelegt (Anforderung Nr. 4, kritisch).',
-            'Kein öffentliches Deployment; Team-Rollen und Aufwandsschätzung bleiben zu bestätigen (siehe PRESENTATION_COMPLIANCE.md).',
+            'Standort vor Bestätigung client-seitig offengelegt (Anforderung Nr. 4, kritisch).',
+            'Kein öffentliches Deployment; Team-Rollen & Aufwand noch zu bestätigen.',
         ],
         closing: [ 'Danke.', 'Fragen?' ],
         notes: [

@@ -27,6 +27,8 @@ import { Benches } from './Benches.js'
 import { Scenery } from './Scenery.js'
 import { Boundary } from './Boundary.js'
 import { ZoneIdentity } from './ZoneIdentity.js'
+import { NameLettering } from './NameLettering.js'
+import { StationEnvironments } from './StationEnvironments.js'
 
 export class World
 {
@@ -76,6 +78,8 @@ export class World
             this.scenery = new Scenery()
             this.areas = new Areas()
             this.zoneIdentity = new ZoneIdentity()
+            this.stationEnvironments = new StationEnvironments()
+            this.nameLettering = new NameLettering()
             this.boundary = new Boundary()
         }
     }
