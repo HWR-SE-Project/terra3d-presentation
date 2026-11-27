@@ -1,472 +1,645 @@
 /**
- * Slide content - pure data, decoupled from SlideRenderer (rendering) and
- * PresentationController (navigation).
+ * Slide content — pure data, decoupled from SlideRenderer and PresentationController.
  *
- * Phase 5: the full 21-slide academic deck, ported from the standalone,
- * source-audited presentation at
- * /Users/maxim/WebstormProjects/TerraGuessr-presentation
- * (src/config/presentation.config.ts + CONTENT_AUDIT.md), itself verified
- * against /Users/maxim/WebstormProjects/terraguessr's REQUIREMENTS_AUDIT.md,
- * the original Anforderungsanalyse PDF, package.json/Prisma stack, and git
- * history. See PRESENTATION_COMPLIANCE.md (repo root) for the full
- * requirement -> slide -> source traceability table and open TODOs.
+ * 20-slide corporate-editorial academic presentation across 4 stations
+ * (+ 1 optional Q&A appendix slide A1), strictly aligned with SWE Kurs B 2026
+ * assessment rules (Gruppe D: Maksym, Linus, Yevhen, Isabelle · 30-Minuten-Slot):
  *
- * `notes` is speaker-only supplementary material - deliberately never read
- * by SlideRenderer/PresentationController. It exists purely as reference
- * data for whoever presents, kept out of the audience-facing DOM.
+ *   01 — Konzept            | Maksym   (Slides 01–04, 4:00 Min.)
+ *   02 — Team & Produkt     | Linus    (Slides 05–09, 4:00 Min. · inkl. Divider)
+ *   03 — Engineering        | Yevhen   (Slides 10–13, 4:00 Min. · inkl. Divider)
+ *   04 — Aufwand & Qualität | Isabelle (Slides 14–18, 4:00 Min. · inkl. Divider)
+ *   Live-Demo               | Team     (Slide  19,    5–10 Min., Richtwert ~8:00 Min.)
+ *   Fragerunde (Q&A)        | Team     (Slide  20,    4:00 Min. = 1 Min./Person)
  *
- * Unconfirmed values (team roles, plan/ist hours) are carried over as
- * explicit placeholders/`null`, exactly as the audited source presentation
- * treats them - never asserted as fact on the visible slide.
+ * Visual-first, sparse copy: headlines, numbers, diagrams, and large current
+ * screenshots carry each slide; detailed verbal narration lives strictly in
+ * speaker `notes` (never rendered in the audience DOM).
+ *
+ * Every technical claim, version, requirement status, and test count is verified
+ * directly against TerraGuessr repository HEAD `b877221` (27.11.2026). Missing
+ * team data (working hours, unconfirmed individual roles) is explicitly marked
+ * rather than invented.
  */
 export const SLIDES = {
 
-    // ---- Station: Konzept (01-05) ------------------------------------
+    // =========================================================================
+    // Station 01 — Konzept | Maksym (01–04 · Zielzeit: 4:00 Min.)
+    // =========================================================================
 
     1: {
         id: 1,
         stationId: 'konzept',
+        theme: 'dark',
         layout: 'title',
-        eyebrow: 'HWR Berlin · Software Engineering · 2026',
         title: 'TerraGuessr',
         subtitle: 'Wo auf der Welt bist du?',
-        byline: 'Maksym & Yevhen · Abschlusspräsentation',
+        byline: 'Maksym · Linus · Yevhen · Isabelle',
+        academicLine: 'Abschlusspräsentation · SWE Kurs B · Gruppe D · 2026',
+        durationSec: 35,
         notes: [
-            'Hallo zusammen! Stellt euch vor, ihr werdet irgendwo auf der Welt abgesetzt. Keine Adresse, nur die Umgebung. Woran würdet ihr erkennen, wo ihr seid?',
-            'Ein bis zwei spontane Antworten aus dem Publikum zulassen.',
-            'TerraGuessr als browserbasiertes Geografiespiel vorstellen.',
-        ],
-    },
-    2: {
-        id: 2,
-        stationId: 'konzept',
-        layout: 'agenda',
-        eyebrow: 'Agenda',
-        title: 'Vier Stationen, ein Rundgang',
-        items: [
-            { number: '01', label: 'Das Konzept', detail: 'Projektidee, Ziele, Team' },
-            { number: '02', label: 'Produktrundgang', detail: 'Einzelspieler, Mehrspieler, Publikums-Challenge' },
-            { number: '03', label: 'Engineering & Architektur', detail: 'Stack, Datenfluss, Aufwand, Herausforderungen' },
-            { number: '04', label: 'Anforderungen & Qualität', detail: 'Anforderungsaudit, Testing' },
-        ],
-        notes: [
-            'Die vier Kapitel kurz ankündigen: Konzept, Produktrundgang, Engineering & Architektur, Anforderungen & Qualität.',
-            'Live-Demo und Fragerunde liegen bewusst außerhalb der vier Kapitel und folgen am Ende (Station Qualität).',
-            'Hinweis: Redezeiten sind als Zwei-Personen-Szenario (Maksym/Yevhen) geplant, nicht als bestätigte Aufteilung der gesamten Gruppe.',
-        ],
-    },
-    3: {
-        id: 3,
-        stationId: 'konzept',
-        layout: 'divider',
-        eyebrow: '01 · Konzept',
-        title: 'Das Konzept',
-        subtitle: 'Projektidee und das Team dahinter',
-        body: [
-            'Warum TerraGuessr: Geografie über Beobachtung statt Kartenlernen erleben.',
-            'Wer das Projekt gebaut hat - und wer wofür zuständig war.',
-        ],
-        notes: [ 'Kurzer Übergang: „Zuerst zur Idee hinter TerraGuessr und zu uns als Team."' ],
-    },
-    4: {
-        id: 4,
-        stationId: 'konzept',
-        layout: 'idea',
-        eyebrow: 'Projektidee & Ziele',
-        title: 'Die Welt spielerisch entdecken',
-        subtitle: 'Geografisches Wissen trifft auf interaktive Spielerfahrung',
-        goals: [
-            { number: '01', title: 'Entdecken', text: 'Unbekannte Orte anhand eines Street-View-Panoramas und situativer Wetter-Hinweise erkunden.' },
-            { number: '02', title: 'Raten', text: 'Den vermuteten Standort je nach Schwierigkeitsgrad auf einer Karte markieren oder aus einer Städteliste wählen.' },
-            { number: '03', title: 'Vergleichen', text: 'Distanz und Punkte nachvollziehen und sich im Einzel- oder Mehrspielermodus messen.' },
-        ],
-        audience: 'Zielgruppe: Einzelspieler:innen und Gruppen, die Geografie über Beobachtung statt Kartenlernen erleben möchten.',
-        scopeNote: '20 Anforderungen in der Analyse (13 Basis-, 2 Leistungs-, 3 Begeisterungs-, 2 Nebenmerkmale) - aktueller Umsetzungsstand in Station Qualität.',
-        notes: [
-            'Problem und Ziel erläutern: Geografisches Wissen nicht nur über Karten lernen, sondern über Beobachtung (Panorama, Wetter-Hinweise) und eigenes Raten erlebbar machen.',
-            'Die drei Ziele kurz erklären: Entdecken (Panorama), Raten (Karte/Liste), Vergleichen (Punkte/Leaderboard).',
-            'Klarstellen: Die Anforderungsanalyse definiert 20 Anforderungen mit unterschiedlicher Priorität (Kano-Modell) - der aktuelle Umsetzungsstand dazu folgt an der Station Qualität.',
-        ],
-    },
-    5: {
-        id: 5,
-        stationId: 'konzept',
-        layout: 'team',
-        eyebrow: 'Team & Rollen',
-        title: 'Wer TerraGuessr gebaut hat',
-        subtitle: 'Zwei Entwickler, durchgängig per Git-Historie belegt',
-        speakers: [
-            { initials: 'MK', name: 'Maksym', role: 'Frontend & UI (vorläufig)', workPackages: [ 'UI / UX & Frontend', 'Spielablauf & Interaktion' ], accent: '#c0f66b' },
-            { initials: 'YV', name: 'Yevhen', role: 'Backend & Spiellogik (vorläufig)', workPackages: [ 'Backend & Spiellogik', 'API- und Systemintegration' ], accent: '#57c4e8' },
-        ],
-        notes: [
-            'Tatsächliche Rollen und Zuständigkeiten erklären.',
-            'Achtung: Die Rollenbezeichnungen und Arbeitspakete sind vorläufig und müssen vor der Präsentation im Team bestätigt werden - siehe PRESENTATION_COMPLIANCE.md.',
-            'Nicht aus der Commit-Historie auf exakte Rollen oder Arbeitsanteile schließen - Git zeigt nur Aktivität, keine Zuständigkeit. Bestätigt ist ausschließlich: genau zwei Personen committen im Repository (git log, Stand 2026-11-24).',
-            'Offene Frage: Eine ältere Quelle nennt eine vierköpfige „Gruppe D" (Linus, Isabelle, Maksym, Yevhen) - nur die letzten zwei erscheinen im TerraGuessr-Repository. Vor der Präsentation klären.',
-            'Überleitung: „Damit zum Produkt selbst - wie fühlt sich TerraGuessr tatsächlich an?"',
+            'Zielzeit: ~35 Sek. | Pünktlicher Beginn, kurze Begrüßung von Prüfer:in und Kommiliton:innen.',
+            'Einstieg & Publikumsaktivierung (Handzeichen): „Kurze Frage zum Einstieg — wer kennt Geo-Guessing-Spiele? Stellt euch vor, ihr landet nachts bei 20,6 °C im Regen auf einer kleinen 3D-Insel — ohne Ortsnamen, nur mit Biom, Live-Wetter und Weltkarte. Findet ihr heraus, wo ihr seid?“',
+            'Überleitung: Genau aus dieser Frage entstand unser Software-Engineering-Projekt TerraGuessr.',
         ],
     },
 
-    // ---- Station: Gameplay / Produktrundgang (06-10) -----------------
+    2: {
+        id: 2,
+        stationId: 'konzept',
+        theme: 'light',
+        layout: 'agenda',
+        title: 'Aufbau der Präsentation',
+        subtitle: 'Vier Stationen im 30-Minuten-Slot',
+        items: [
+            { number: '01', label: 'Konzept', speaker: 'Maksym · 4 Min.', topics: [ 'Ausgangslage & Idee', 'Projektziele', '20 Anforderungen' ] },
+            { number: '02', label: 'Team & Produkt', speaker: 'Linus · 4 Min.', topics: [ 'Team & Rollen', 'Einstieg & Solo', 'Mehrspieler & Extras' ] },
+            { number: '03', label: 'Engineering', speaker: 'Yevhen · 4 Min.', topics: [ 'Architektur & Stack', 'Runden-Datenfluss', 'Herausforderungen' ] },
+            { number: '04', label: 'Aufwand & Qualität', speaker: 'Isabelle · 4 Min.', topics: [ 'Plan / Ist & Risiken', 'Reflexion & Tests', 'Fazit' ] },
+        ],
+        footerBar: 'Im Anschluss: Live-Demo mit dem Publikum (5–10 Min.) · Diskussion & Fragen (4 Min.)',
+        durationSec: 25,
+        notes: [
+            'Zielzeit: ~25 Sek. | Vier gleichmäßige 4-Minuten-Blöcke knapp benennen: Maksym (Konzept), Linus (Team & Produkt), Yevhen (Engineering), Isabelle (Aufwand & Qualität).',
+            'Zeitbudget transparent machen: 16 Min. Vortrag, 5–10 Min. Live-Demo mit Publikumsrunde, 4 Min. Diskussion & Q&A (1 Min. pro Person).',
+        ],
+    },
+
+    3: {
+        id: 3,
+        stationId: 'konzept',
+        theme: 'split',
+        layout: 'split-idea',
+        problemLabel: 'Ausgangssituation',
+        problemHeadline: 'Geografie erleben statt nur auswendig lernen.',
+        problemQuote: 'Beobachten. Kombinieren. Verorten.',
+        clues: [ '3D-Biom-Diorama', 'Live-Wetter', 'Höhe & Tageszeit', 'Weltkarte' ],
+        ideaTitle: 'Die Welt als Indizien-Spiel',
+        steps: [
+            { number: '01', title: 'Erkunden', text: '7 Biome · 140 globale Orte · Echtzeit-Wetter (MET Norway)' },
+            { number: '02', title: 'Raten', text: 'Indizien kombinieren · Best-of-N auf Weltkarte oder aus 6 Städten' },
+            { number: '03', title: 'Vergleichen', text: 'Haversine-Distanz (0,1 km) · 0–5.000 Punkte · Lobby-Rangliste' },
+        ],
+        durationSec: 90,
+        notes: [
+            'Zielzeit: ~1:30 Min. | Motivation sachlich einordnen: Reines Faktenpauken trennt geografisches Wissen oft von Klima, Landschaft und Wetter.',
+            'Projektidee: TerraGuessr ist eine browserbasierte Geografie-App. Statt Fotos oder Koordinaten liefert jede Runde ein prozedurales 3D-Biom-Diorama (7 Biome wie Wüste, Tundra, Küste, Gebirge) kombiniert mit aktuellen MET-Norway-Wetterdaten.',
+            'Spielprinzip in drei Schritten: Erkunden (3D-Insel + Wetter + optionale Zusatzdaten wie Höhe/UV), Raten (Best-of-N auf Leaflet-Weltkarte oder aus 6 Städten bei Easy), Vergleichen (Distanz auf 0,1 km, bis 5.000 Punkte, Solo oder in der Lobby).',
+        ],
+    },
+
+    4: {
+        id: 4,
+        stationId: 'konzept',
+        theme: 'light',
+        layout: 'goals',
+        title: 'Projektziele & Anforderungen',
+        goals: [
+            { index: '01', title: 'Indizien-Gameplay', text: '3D-Biome & Echtzeit-Wetter statt Auswendiglernen' },
+            { index: '02', title: 'Niedrige Hürde', text: 'Direkt im Browser · Gastmodus, optionales Konto & Tutorial' },
+            { index: '03', title: 'Fairer Wettbewerb', text: 'Einheitliches Scoring im Einzel- & Mehrspieler (2–16)' },
+        ],
+        kpi: {
+            value: '20',
+            label: 'Anforderungen',
+            sub: '16 Pflicht · 4 Soll',
+            segments: [
+                { label: 'Basis', count: 13, tone: 'base' },
+                { label: 'Leistung', count: 2, tone: 'perf' },
+                { label: 'Begeisterung', count: 3, tone: 'delight' },
+                { label: 'Unerheblich', count: 2, tone: 'indiff' },
+            ],
+        },
+        footerBar: 'Kano-Priorisierung als roter Faden — die vollständige Umsetzungsbilanz folgt in Station 04',
+        durationSec: 90,
+        notes: [
+            'Zielzeit: ~1:30 Min. | Ziele klar von empirischer Lernmessung abgrenzen — wir zeigen, was das Produkt konkret ermöglicht.',
+            'Drei konkrete Projektziele: (1) Klimatische & landschaftliche Indizien spielerisch verknüpfen; (2) Sofort spielbar im Browser ohne Installation und ohne Karten-API-Key; (3) Einheitliche, serverseitig geprüfte Fairness im Einzel- und Mehrspieler.',
+            'Kano-Modell kurz erklären: 20 dokumentierte Anforderungen (13 Basis-, 2 Leistungs-, 3 Begeisterungs-, 2 unerhebliche Merkmale; verbindlich 16 Pflicht- und 4 Soll-Anforderungen).',
+            'Übergabe an Linus (Station 02): Wer steckt hinter dem Projekt und wie sieht das fertige Produkt aus?',
+        ],
+    },
+
+    // =========================================================================
+    // Station 02 — Team & Produkt | Linus (05–09 · Zielzeit: 4:00 Min.)
+    // =========================================================================
+
+    5: {
+        id: 5,
+        stationId: 'gameplay',
+        theme: 'dark',
+        layout: 'divider',
+        sectionNumber: '02',
+        kicker: 'Station 02 · Linus',
+        title: 'Team & Produkt',
+        subtitle: 'Rollenverteilung · Einzelspieler · Mehrspieler',
+        durationSec: 10,
+        notes: [
+            'Kurzer Übergang (~5–10 Sek.) auf Station 02 — Linus übernimmt.',
+        ],
+    },
 
     6: {
         id: 6,
         stationId: 'gameplay',
-        layout: 'divider',
-        eyebrow: '02 · Produktrundgang',
-        title: 'Produktrundgang',
-        subtitle: 'Vom Startbildschirm bis zur Punktevergabe',
-        body: [
-            'Echte Screenshots der laufenden Anwendung (Stand 2026-11-21).',
-            'Einzelspieler, Mehrspieler - und eine kleine Publikums-Challenge.',
+        theme: 'light',
+        layout: 'team',
+        title: 'Projektteam & Rollenverteilung',
+        subtitle: 'SWE Kurs B · Gruppe D',
+        members: [
+            {
+                number: '01',
+                name: 'Maksym',
+                presentationRole: 'Konzept · 4 Min.',
+                projectRole: 'Entwicklung (245 Commits belegt) · finale Rollenmatrix im Team bestätigen',
+                verified: true,
+            },
+            {
+                number: '02',
+                name: 'Linus',
+                presentationRole: 'Team & Produkt · 4 Min.',
+                projectRole: 'Projektrolle im Team vor Abgabe ergänzen',
+                pending: true,
+            },
+            {
+                number: '03',
+                name: 'Yevhen',
+                presentationRole: 'Engineering · 4 Min.',
+                projectRole: 'Entwicklung & Docs (102 Commits belegt) · finale Rollenmatrix im Team bestätigen',
+                verified: true,
+            },
+            {
+                number: '04',
+                name: 'Isabelle',
+                presentationRole: 'Aufwand & Qualität · 4 Min.',
+                projectRole: 'Projektrolle im Team vor Abgabe ergänzen',
+                pending: true,
+            },
         ],
-        notes: [ 'Übergang: „Schauen wir uns an, wie sich das in der Anwendung konkret zeigt."' ],
-    },
-    7: {
-        id: 7,
-        stationId: 'gameplay',
-        layout: 'media',
-        eyebrow: 'Startbildschirm',
-        title: 'Der erste Eindruck',
-        subtitle: 'Direkter Einstieg in Einzel- oder Mehrspieler, optionales Tutorial',
-        bullets: [
-            { title: 'Zwei Einstiege', text: 'Die Startseite führt direkt zu „Play singleplayer" oder „Multiplayer" - Anmeldung ist optional.' },
-            { title: 'How to play', text: 'Ein manuell aufrufbares Tutorial erklärt Panorama, Hinweise, Tippabgabe und Punkteberechnung in vier Schritten.' },
-        ],
-        screenshots: [
-            { src: '/presentation/screens/start-home.webp', alt: 'TerraGuessr Startbildschirm', caption: 'Echter Screenshot, terraguessr/docs/screenshots-v2/home-desktop.png' },
-            { src: '/presentation/screens/start-tutorial.webp', alt: 'TerraGuessr Tutorial „How to play"', caption: 'Echter Screenshot, terraguessr/docs/screenshots-v2/how-to-play-desktop.png' },
-        ],
+        footerBar: 'Transparenz: Git belegt 245 Commits (Maksym) und 102 Commits (Yevhen) — verbindliche Arbeitsverteilung für alle 4 Mitglieder vor Abgabe eintragen',
+        durationSec: 50,
         notes: [
-            'Startseite zeigen: direkter Einstieg in Einzelspieler oder Mehrspieler, optionale Anmeldung.',
-            'Auf das optionale, interaktive Tutorial ("How to play") hinweisen - laut Anforderungsanalyse ein Begeisterungsmerkmal (Nr. 14), laut Audit die am besten getestete Anforderung des Projekts.',
-            'Screenshots sind echte Aufnahmen der Anwendung (Stand 2026-11-21), keine Mockups.',
-        ],
-    },
-    8: {
-        id: 8,
-        stationId: 'gameplay',
-        layout: 'media',
-        eyebrow: 'Einzelspieler',
-        title: 'Eine Runde. Vier Schritte.',
-        subtitle: 'Von der unbekannten Umgebung bis zum Ergebnis',
-        bullets: [
-            { title: '1 · Erkunden', text: 'Ein Street-View-Panorama erscheint; Wetter und Gelände liefern erste Hinweise ("Geographic Intelligence").' },
-            { title: '2 · Lokalisieren', text: 'Je nach Schwierigkeitsgrad: Städteliste (Leicht) oder Weltkarte mit/ohne Ländergrenzen (Mittel/Schwer).' },
-            { title: '3 · Bestätigen', text: 'Der Tipp wird serverseitig entgegengenommen und validiert.' },
-            { title: '4 · Auswerten', text: 'Distanz (Haversine-Formel) und Punkte (linear fallende Kurve) werden angezeigt, der echte Standort aufgedeckt.' },
-        ],
-        screenshots: [
-            { src: '/presentation/screens/singleplayer-setup.webp', alt: 'Schwierigkeitsauswahl Einzelspieler', caption: 'Echter Screenshot, singleplayer-setup-desktop.png' },
-            { src: '/presentation/screens/singleplayer-round.webp', alt: 'Einzelspieler-Runde mit Panorama und Hinweisen', caption: 'Echter Screenshot, singleplayer-game-easy-desktop.png' },
-            { src: '/presentation/screens/singleplayer-result.webp', alt: 'Rundenergebnis mit Distanz und Punkten', caption: 'Echter Screenshot, singleplayer-round-result-desktop.png' },
-        ],
-        notes: [
-            'Rundenablauf anhand der vier Schritte erklären: Standort erscheint (Street-View-Panorama), Hinweise lesen (Wetter/Gelände), Tipp abgeben (Karte oder Städteliste), Punkte erhalten.',
-            'Die drei Schwierigkeitsgrade kurz nennen (Leicht: Städteliste; Mittel: Weltkarte mit Ländergrenzen; Schwer: Weltkarte ohne Ländergrenzen).',
-            'Nur tatsächlich verifizierte Abläufe als verfügbar bezeichnen - Details und Einschränkungen folgen gebündelt im Anforderungsaudit (Station Qualität), hier nicht vorwegnehmen.',
-        ],
-    },
-    9: {
-        id: 9,
-        stationId: 'gameplay',
-        layout: 'media',
-        eyebrow: 'Mehrspieler',
-        title: 'Gemeinsam raten',
-        subtitle: 'Geteilte Runden, gleiche Bedingungen, ein Leaderboard',
-        bullets: [
-            { title: 'Lobby per Code:', text: 'Beitreten per Code, Host startet das Match.' },
-            { title: 'Ein Leaderboard:', text: 'Gleicher Standort für alle, live aktualisiert.' },
-        ],
-        screenshots: [
-            { src: '/presentation/screens/multiplayer-lobby.webp', alt: 'Mehrspieler-Lobby mit Beitrittscode', caption: 'Echter Screenshot, mp-lobby-waiting-desktop.png' },
-            { src: '/presentation/screens/multiplayer-round.webp', alt: 'Mehrspieler-Runde mit Live-Leaderboard', caption: 'Echter Screenshot, multiplayer-game-desktop.png' },
-        ],
-        footnote: 'Live bestätigt (Zwei-Sitzungs-Test, Audit 24.11.2026) - stärkste Evidenzbasis aller 20 Anforderungen.',
-        notes: [
-            'Lobby-Erstellung/-Beitritt über einen Code zeigen, gemeinsame Runden und das Live-Leaderboard erklären.',
-            'Sowohl Backend-Logik als auch die Frontend-Anbindung sind implementiert: der Service-Boundary im committeten Code (frontend/src/services/index.ts, HEAD 4bee821) verweist auf die echte HTTP-Implementierung, nicht auf eine Mock-Schicht.',
-            'Bestätigt über einen Live-Test mit zwei unabhängigen Clients (Audit vom 24.11.2026): identische Rundendaten, korrekt sortiertes Leaderboard.',
-        ],
-    },
-    10: {
-        id: 10,
-        stationId: 'gameplay',
-        layout: 'challenge',
-        eyebrow: 'Publikums-Challenge',
-        title: 'Wo auf der Welt seid ihr hier?',
-        screenshot: {
-            src: '/presentation/screens/audience-challenge.webp',
-            alt: 'Street-View-Panorama einer unbekannten Stadt, Publikums-Challenge',
-            caption: 'Echter Screenshot, sp-game-hard-desktop.png - Antwort in den Sprechernotizen',
-        },
-        instructions: [
-            'Kontinent oder Region genügt als Antwort - kurz im Publikum sammeln.',
-            'Auflösung und Quelle befinden sich ausschließlich in den Sprechernotizen.',
-        ],
-        notes: [
-            'Publikum auffordern, anhand des gezeigten Panoramas zu raten, wo dieser Ort liegt (Kontinent/Region genügt).',
-            'TODO - Verifizierung erforderlich: Die exakte Antwort vor der Präsentation über die Bildnachweis-/Standortangabe der Anwendung verifizieren (Screenshot zeigt Google-Street-View-Zuschreibung „© Jesús"); hier nicht raten.',
-            'Dies ist ein Präsentationsformat auf Basis eines echten Screenshots, kein dokumentiertes TerraGuessr-Feature - weder Spezifikation noch Quellcode kennen eine "Publikums-Challenge".',
-            'Statischer Fallback ist bereits erfüllt: Diese Station nutzt einen echten, fest eingebetteten Screenshot und benötigt keine Live-Internetverbindung.',
+            'Zielzeit: ~50 Sek. | WICHTIG VOR ABGABE: Die tatsächlichen Projekt- und Arbeitspaket-Rollen aller vier Teammitglieder (z. B. Anforderungsanalyse, UI/UX, Frontend, Backend, QA, Dokumentation) gemeinsam abstimmen und in slides.js eintragen.',
+            'Transparenzregel eingehalten: Nichts erfunden. Git-Historie belegt 245 Commits von Maksym und 102 Commits von Yevhen (Stand b877221); nicht im Repo sichtbare Beiträge (z. B. Analyse, Konzept, Testing, Doku) müssen explizit vom Team bestätigt werden.',
         ],
     },
 
-    // ---- Station: Engineering (11-16) ---------------------------------
+    7: {
+        id: 7,
+        stationId: 'gameplay',
+        theme: 'dark',
+        layout: 'versus',
+        title: 'Direkt im Browser starten',
+        screenshots: [
+            {
+                src: '/presentation/screens/home-hero.webp',
+                alt: 'TerraGuessr Startseite mit 3D-Globus, Explorer-Avatar und Einzel-/Mehrspieler-Auswahl',
+                step: '01',
+                label: 'Startseite & 3D-Avatar',
+                text: 'Kein Download · Gastmodus · Avatar-Editor & Tutorial',
+            },
+            {
+                src: '/presentation/screens/singleplayer-setup.webp',
+                alt: 'Einzelspieler-Konfiguration mit Easy, Medium, Hard sowie Rundenwahl oder Endless-Modus',
+                step: '02',
+                label: 'Schwierigkeit & Runden',
+                text: 'Easy (6 Städte) · Medium / Hard (Weltkarte) · 3–10 Runden oder Endless',
+            },
+        ],
+        durationSec: 55,
+        notes: [
+            'Zielzeit: ~55 Sek. | Links: Echter Startbildschirm mit rotierendem Low-Poly-Globus und 3D-Explorer-Avatar (Head-Tracking, eigener Avatar-Editor unter /avatar). Spielbar als Gast oder mit optionalem Konto.',
+            'Rechts: Einzelspieler-Setup (R5) — Easy: 7 Min., 3 Versuche, 6 markierte Städte auf der Karte, kostenlose Zusatzdaten; Medium: 4 Min., 2 Versuche, Weltkarte, Zusatzdaten −100 Pkt.; Hard: 2 Min., 1 Versuch, Weltkarte, Zusatzdaten −20 Sek.',
+            'Feste Rundenzahl (3–10 Runden, Standard 5) oder Endless-Modus · WebGL-Fallback & Tastaturbedienung integriert.',
+        ],
+    },
+
+    8: {
+        id: 8,
+        stationId: 'gameplay',
+        theme: 'light',
+        layout: 'product-mosaic',
+        title: 'Einzelspieler: 3D-Diorama & Auswertung',
+        primary: {
+            src: '/presentation/screens/gameplay-diorama.webp',
+            alt: 'Aktive 3D-Spielrunde mit Regen-Diorama, Geographic-Intelligence-Wetterpanel und Leaflet-Weltkarte',
+            step: '01',
+            label: '3D-Biom-Diorama, Live-Wetter & Leaflet-Karte',
+            detail: 'Best-of-N Versuche · freischaltbare Zusatzdaten (Höhe, UV, 24h-Trend)',
+        },
+        secondary: [
+            {
+                src: '/presentation/screens/round-result.webp',
+                alt: 'Runden-Auswertung für Cusco mit 10.515,0 km Distanz, +2.383 Punkten und Großkreislinie auf der Karte',
+                step: '02',
+                label: 'Runden-Auswertung · 0,1 km & 0–5.000 Pkt.',
+            },
+            {
+                src: '/presentation/screens/session-summary.webp',
+                alt: 'Spielabschluss-Übersicht mit Gesamtpunktzahl, bester Runde und Rundenliste',
+                step: '03',
+                label: 'Spielabschluss & Runden-Breakdown',
+            },
+        ],
+        durationSec: 70,
+        notes: [
+            'Zielzeit: ~1:10 Min. | Links: Aktive Spielrunde — drehbares 3D-Biom-Diorama (hier Regen bei Nacht, 20,6 °C, Avatar mit Schirm, Kompass), links Geographic Intelligence (Temperatur, Niederschlag, Luftfeuchte, Wind + freischaltbares Station Dossier mit Höhe, 24h-Trend, UV, Taupunkt, Luftdruck), rechts Leaflet/Esri-Weltkarte mit „Submit guess“ (Versuch) und „Final submit“.',
+            'Oben rechts: Runden-Auswertung (R9–R11) — exakter Zielort (Cusco), Haversine-Distanz auf eine Nachkommastelle (10.515,0 km), Punkte (+2.383) und Großkreislinie.',
+            'Unten rechts: Abschlussübersicht („Well explored!“) mit Gesamtscore, bester Runde, Durchschnitt und Runden-Breakdown.',
+        ],
+    },
+
+    9: {
+        id: 9,
+        stationId: 'gameplay',
+        theme: 'dark',
+        layout: 'showcase',
+        title: 'Mehrspieler & Ökosystem',
+        primaryShot: {
+            src: '/presentation/screens/multiplayer-join.webp',
+            alt: 'Mehrspieler-Lobby-Ansicht zum Erstellen oder Beitreten per 6-stelligem Code für 2 bis 16 Spieler',
+            caption: 'Lobby-Hub · 2–16 Spieler · Beitritt per 6-stelligem Code',
+        },
+        points: [
+            {
+                tag: 'R16',
+                label: 'Synchronisierte Partien',
+                text: 'Identisches 3D-Diorama & Timer · 15-s-Review mit Early-Continue & Rematch',
+            },
+            {
+                tag: 'R14',
+                label: 'Tutorial & Field Guide',
+                text: '2-Runden-Praxistutorial (wiederholbar) & Leitfaden unter /how-to-play',
+            },
+            {
+                tag: 'R18',
+                label: 'Statistiken & Konto',
+                text: '6-Monats-Archiv & Karten-Replays (/stats) · E-Mail/Passwort & Google OAuth',
+            },
+        ],
+        durationSec: 55,
+        notes: [
+            'Zielzeit: ~55 Sek. | Links: Der aktuelle Mehrspieler-Hub (/multiplayer) — Host erstellt eine Lobby für 2–16 Spieler mit Schwierigkeit & Rundenzahl (3–10) oder tritt per 6-stelligem Code bei.',
+            'Rechts: (1) Synchronisierte Runden mit gemeinsamem 15-Sekunden-Review (alle Tipps auf der Karte, sofortiges Weiter sobald alle bereit sind) und Rematch; (2) 2-Runden-Praxistutorial & Ultimate Field Guide; (3) 6-Monats-Archiv, Biom-Quoten und interaktive Karten-Replays unter /stats plus Datenschutzseite (/privacy).',
+            'Übergabe an Yevhen (Station 03): Wie ist TerraGuessr technisch aufgebaut, und wie wurden diese Anforderungen umgesetzt?',
+        ],
+    },
+
+    // =========================================================================
+    // Station 03 — Engineering | Yevhen (10–13 · Zielzeit: 4:00 Min.)
+    // =========================================================================
+
+    10: {
+        id: 10,
+        stationId: 'engineering',
+        theme: 'light',
+        layout: 'divider',
+        sectionNumber: '03',
+        kicker: 'Station 03 · Yevhen',
+        title: 'Engineering',
+        subtitle: 'Architektur · Datenfluss · Herausforderungen',
+        durationSec: 10,
+        notes: [
+            'Kurzer Übergang (~5–10 Sek.) auf Station 03 — Yevhen übernimmt.',
+        ],
+    },
 
     11: {
         id: 11,
         stationId: 'engineering',
-        layout: 'divider',
-        eyebrow: '03 · Engineering',
-        title: 'Engineering & Architektur',
-        subtitle: 'Wie das Produkt technisch umgesetzt ist',
-        body: [
-            'Technologie-Stack, Datenfluss einer Spielrunde, Aufwand und Herausforderungen.',
-            'Alle Aussagen gegen Quellcode, package.json und Prisma-Schema verifiziert (Stand 24.11.2026).',
-        ],
-        notes: [ 'Übergang: „Jetzt zur technischen Seite - wie ist das Ganze gebaut?"' ],
-    },
-    12: {
-        id: 12,
-        stationId: 'engineering',
-        layout: 'stack',
-        eyebrow: 'Technologie-Stack',
-        title: 'Zwei Stacks, zwei Zwecke',
-        subtitle: 'Das TerraGuessr-Produkt - und das Werkzeug, mit dem es gerade präsentiert wird',
-        product: {
-            frontend: { title: 'Frontend', subtitle: 'UI, Karte, Spielablauf', note: 'React 19 · TypeScript · Vite · Tailwind CSS v4', stack: [ 'React 19', 'TypeScript', 'Vite', 'Tailwind CSS', 'React Three Fiber' ] },
-            backend: { title: 'Backend', subtitle: 'Fastify-Server, geteilte Spiellogik', note: 'Scoring & Distanzberechnung: gemeinsame, abhängigkeitsfreie Module', stack: [ 'Fastify 5', 'TypeScript', 'Prisma 5', 'TypeBox' ] },
-            data: { title: 'Datenhaltung', subtitle: 'Spiel- und Benutzerdaten', stack: [ 'PostgreSQL 16' ] },
-            external: 'Google Maps / Street View · Google OAuth · Open-Meteo Wetter-API',
-            quality: [ 'Vitest', 'Playwright', 'GitHub Actions CI', 'Docker Compose' ],
-        },
-        environmentNote: 'Diese 3D-Umgebung ist nur das Präsentationswerkzeug, kein Teil des Produkts - eigener Stack: Three.js/WebGPU, Rapier3D, GSAP, Vite.',
-        notes: [
-            'Frontend, Backend und Datenhaltung anhand der tatsächlich verwendeten Technologien erläutern (verifiziert gegen package.json und Prisma-Schema, Stand 24.11.2026).',
-            'Die UI/Spiellogik-Trennung (Anforderung Nr. 20) ist laut Audit bestanden: Scoring und Distanzberechnung liegen in gemeinsamen, abhängigkeitsfreien Modulen, die von Einzel- und Mehrspieler-Pfaden gleichermaßen genutzt werden.',
-            'Explizit klarstellen, dass dieser begehbare 3D-Raum ein separates Werkzeug mit eigenem Stack ist, nicht Teil des TerraGuessr-Produkts.',
-            'Qualitätssicherung kurz nennen: Tests, CI-Pipeline, Docker - Details folgen an der Station Qualität.',
-        ],
-    },
-    13: {
-        id: 13,
-        stationId: 'engineering',
-        layout: 'flow',
-        eyebrow: 'Architektur & Ablauf',
-        title: 'Ablauf einer Spielrunde',
-        subtitle: 'Vom Rundenstart bis zum gespeicherten Ergebnis',
-        steps: [
-            { number: '1', actor: 'Client', title: 'Sitzung & Runde starten', text: 'POST /singleplayer/games, dann POST .../rounds.' },
-            { number: '2', actor: 'Backend', title: 'Standort wählen', text: 'Server wählt Panorama-ID und Kandidaten serverseitig aus einer festen Standortliste.' },
-            { number: '3', actor: 'Client', title: 'Panorama & Hinweise zeigen', text: 'Street-View-Panorama plus Wetter-/Gelände-Hinweise ("Geographic Intelligence").' },
-            { number: '4', actor: 'Client', title: 'Tipp abgeben', text: 'POST .../rounds/:id/guess mit Koordinaten oder Städte-Auswahl.' },
-            { number: '5', actor: 'Backend', title: 'Validieren & berechnen', text: 'Serverseitige Bereichsprüfung, Haversine-Distanz, Punkteformel (linear, 5000 → 0).' },
-            { number: '6', actor: 'Datenbank', title: 'Ergebnis festhalten', text: 'Versuch bzw. Ergebnis in Prisma/PostgreSQL gespeichert; Antwort inkl. echtem Standort an den Client.' },
-        ],
-        multiplayerNote: 'Mehrspieler-Synchronisation läuft über wiederholte Abfragen eines Endpunkts (Polling), nicht über WebSockets.',
-        caveat: 'Vorsichtig formuliert: „Standort erst nach Bestätigung" gilt auf API-Ebene (live bestätigt). Die client-seitige Street-View-Komponente löst die Panorama-Position unabhängig davon auf, was diesen Schutz in der Praxis einschränkt - Details folgen bei „Herausforderungen & Lösungen" und im Anforderungsaudit, Nr. 4.',
-        notes: [
-            'Eine Einzelspieler-Runde Schritt für Schritt durchgehen: Sitzung anlegen, Runde starten, Panorama + Hinweise anzeigen, Tipp serverseitig validieren, Distanz/Punkte serverseitig berechnen, Ergebnis zurückgeben.',
-            'Betonen: Validierung und Punkteberechnung liegen serverseitig - nicht im Client.',
-            'Mehrspieler-Synchronisation erfolgt über wiederholte Abfragen (Polling) eines Endpunkts, nicht über WebSockets.',
-            'Wichtiger Vorbehalt: Die Offenlegung „Standort erst nach Bestätigung" gilt auf API-Ebene. Die client-seitige Street-View-Komponente löst die Panorama-Position unabhängig davon auf - das schränkt diesen Schutz in der Praxis ein (siehe Herausforderungen, Anforderung Nr. 4).',
-        ],
-    },
-    14: {
-        id: 14,
-        stationId: 'engineering',
-        layout: 'table-hours',
-        eyebrow: 'Aufwandsschätzung',
-        title: 'Plan vs. Ist',
-        subtitle: 'Aufwand in Personenstunden',
-        items: [
-            { label: 'Anforderungsanalyse & Planung', planHours: null, actualHours: null },
-            { label: 'UI / UX & Frontend', planHours: null, actualHours: null },
-            { label: 'Backend & Spiellogik', planHours: null, actualHours: null },
-            { label: 'API- und Systemintegration', planHours: null, actualHours: null },
-            { label: 'Tests, Fehlerbehebung & Deployment', planHours: null, actualHours: null },
-        ],
-        note: 'TODO - Verifizierung erforderlich: Im Projekt-Repository wurde keine Aufwandsschätzung gefunden (geprüft: git log, repoweite Suche nach Planungs-/Zeiterfassungsdokumenten). Ohne diese Zahlen zeigt die Tabelle ausschließlich Platzhalter.',
-        notes: [
-            'Mit welcher Methode die ursprünglichen Planwerte zustande kamen, ist nicht dokumentiert - im Team klären und hier ergänzen.',
-            'Welches Arbeitspaket lag am nächsten am Plan? Welches wich am stärksten ab? Warum?',
-            'TODO - Verifizierung erforderlich: Im Projekt-Repository wurde keine Aufwandsschätzung gefunden - Zahlen müssen vor der Präsentation aus anderer Quelle (z. B. Team-Notizen, Zeiterfassung) ergänzt werden.',
-        ],
-    },
-    15: {
-        id: 15,
-        stationId: 'engineering',
-        layout: 'table-challenges',
-        eyebrow: 'Herausforderungen & Lösungen',
-        title: 'Was uns gefordert hat',
-        subtitle: 'Technische Herausforderungen - gelöst und offen',
-        items: [
+        theme: 'dark',
+        layout: 'architecture',
+        title: 'Schichtenarchitektur & Stack',
+        layers: [
             {
-                challenge: 'Mehrspieler-Synchronisation',
-                solution: 'Gemeinsame Domain-Logik plus serverseitige Lobby-Verwaltung - per Live-Test mit zwei unabhängigen Clients bestätigt.',
-                status: 'gelöst',
-                source: 'Audit R16, 24.11.2026',
+                num: '01',
+                name: 'Frontend SPA',
+                role: '3D-Biom-Dioramen · Leaflet-Karte · zentrale Service-Grenze',
+                stack: 'React 19 · TypeScript · Vite 8 · Tailwind 4 · R3F / Three.js · Leaflet 1.9',
             },
             {
-                challenge: 'Standort vor Bestätigung verdeckt halten',
-                solution: 'Die Street-View-Anbindung legt Koordinaten client-seitig vor Bestätigung offen - laut Audit das größte architektonische Risiko; Lösungsansätze in Diskussion.',
-                status: 'offen',
-                source: 'Audit R4, 24.11.2026',
+                num: '02',
+                name: 'Backend REST-API',
+                role: 'TypeBox-Validierung · Rate-Limits · reine Domain-Module',
+                stack: 'Fastify 5 · TypeScript 5 · Prisma 5 · TypeBox · Node 22',
             },
             {
-                challenge: 'Mock-Daten vs. echte Backend-Anbindung',
-                solution: 'Ein einziger Swap-Point (services/index.ts) ersetzte die Mock-Datenschicht ohne Komponentenänderungen durch die echte Fastify-API.',
-                status: 'gelöst',
-                source: 'docs/phase2-integration-checklist.md (21.11.2026); services/index.ts, Audit R16/R20 (24.11.2026)',
+                num: '03',
+                name: 'Persistenz',
+                role: 'Konten · Partien · Lobbys · 6-Monats-Archiv (Cron-Purge)',
+                stack: 'PostgreSQL 16 · Neon (Prod)',
             },
         ],
+        external: [ 'MET Norway (Wetter & Höhe · 0 Keys)', 'Esri ArcGIS Tiles (Karte · 0 Keys)', 'SMTP & Google OAuth (optional)' ],
+        ops: 'Vitest 5 · Playwright · Docker · GitHub Actions · Render + Vercel',
+        principle: 'R20: Frameworkfreie Domain-Module (Scoring, Haversine, Spielregeln, 3D-Szene) — identisch in Solo & Multiplayer.',
+        footnote: 'Abgrenzung: Diese 3D-Präsentationswelt ist ein separates Vortragswerkzeug; die App rendert eigene R3F-Dioramen.',
+        durationSec: 70,
         notes: [
-            'Die Mehrspieler-Synchronisation als gelöstes Beispiel erläutern: gemeinsame Domain-Logik plus serverseitige Lobby-Verwaltung, bestätigt durch einen Live-Test mit zwei unabhängigen Clients.',
-            'Die Spannung zwischen client-seitiger Street-View-Anbindung und der Anforderung "Standort verdeckt halten" ehrlich als offenen Punkt benennen - laut Audit das größte architektonische Risiko des Projekts.',
-            'Die Mock-/Echt-Umstellung (dritter Punkt) als bereits abgeschlossenes Beispiel zeigen: ein einziger Swap-Point hat die spätere Integration ohne Komponentenänderungen ermöglicht.',
-            'Soziale/organisatorische Herausforderungen sind im Projekt nicht dokumentiert - nur technische Befunde sind belegt (siehe PRESENTATION_COMPLIANCE.md).',
-        ],
-    },
-    16: {
-        id: 16,
-        stationId: 'engineering',
-        layout: 'learnings',
-        eyebrow: 'Gewonnene Erkenntnisse',
-        title: 'Was wir mitnehmen',
-        items: [
-            { number: '01', title: 'Sicherheit früh verankern', text: 'Client-seitige APIs früh gegen Anforderungen wie „Standort verdeckt halten" prüfen, bevor sie fest verbaut werden.' },
-            { number: '02', title: 'Abweichungen dokumentieren statt stillschweigend bauen', text: 'Mehrfachversuch-Verhalten und abweichende Kandidatenzahl im Leicht-Modus wichen von der Spezifikation ab, ohne dass dies im Projekt dokumentiert wurde.' },
-            { number: '03', title: 'Nur Live-Tests zeigen Live-Fehler', text: 'Tests, die standardmäßig nur gegen Mocks laufen, lassen reale Integrationsfehler zunächst unentdeckt.' },
-        ],
-        notes: [
-            'Die drei Erkenntnisse jeweils an ein konkretes Beispiel aus den Herausforderungen bzw. dem Audit zurückbinden, statt sie abstrakt zu lassen.',
-            'Besonders die CI-Erkenntnis betonen: Ein Teil der End-to-End-Tests läuft standardmäßig nur gegen Mocks - dadurch blieben reale Integrationsfehler zunächst unentdeckt.',
+            'Zielzeit: ~1:10 Min. | Dreischichtige Architektur verständlich erläutern:',
+            '1) Frontend SPA (React 19, Vite 8, Tailwind 4, React Three Fiber für 3D-Dioramen, Leaflet für die Weltkarte): Alle API-Aufrufe laufen über genau eine Service-Grenze (src/services/index.ts).',
+            '2) Backend REST-API (Fastify 5, TypeBox = typsichere Schema-Validierung, Prisma 5 = typsicheres ORM): Geschäftslogik (Haversine-Distanz, Punkteformel, Best-of-N, 3D-Szenenableitung) liegt frameworkfrei in backend/src/domain/.',
+            '3) Persistenz (PostgreSQL 16, lokal per Docker, produktiv auf Neon) + node-cron (stündlicher Session-Cleanup, tägliche 6-Monats-Löschung um 03:00 UTC).',
+            '4) Externe Dienste ohne Karten-API-Key: MET Norway Locationforecast 2.0 und Esri ArcGIS Kacheln; SMTP & Google OAuth optional und rein serverseitig.',
         ],
     },
 
-    // ---- Station: Qualität (17-21) -------------------------------------
+    12: {
+        id: 12,
+        stationId: 'engineering',
+        theme: 'light',
+        layout: 'sequence',
+        title: 'Datenfluss einer Spielrunde',
+        lanes: [ 'Client (React + R3F)', 'Backend (Fastify)', 'MET Norway & Postgres' ],
+        messages: [
+            { id: 1, from: 0, to: 1, kind: 'req', label: '1 · Neue Runde anfordern' },
+            { id: 2, from: 1, to: 2, kind: 'req', label: '2 · Ort wählen & Live-Wetter (≤ 3 s, max. 3×)' },
+            { id: 3, from: 1, to: 0, kind: 'res', label: '3 · Anonymisierte 3D-Szene & Wetter (ohne Zielkoordinaten)' },
+            { id: 4, from: 0, to: 1, kind: 'req', label: '4 · Tipp senden (Submit Guess / Final Submit)' },
+            { id: 5, from: 1, to: 2, kind: 'req', label: '5 · Best-of-N · Haversine · 0–5.000 Pkt. · Archiv' },
+            { id: 6, from: 1, to: 0, kind: 'res', label: '6 · Zielort, Distanz (0,1 km) & Punktzahl' },
+        ],
+        facts: [
+            { label: 'Standortverbergung (R4)', text: 'Zielkoordinaten & Ortsname bleiben bis Rundenende strikt serverseitig' },
+            { label: 'Latenz & Sync (R12 / R16)', text: 'Round-1-Warm-Pool & Prefetch · Multiplayer per HTTP-Polling (1 s)' },
+        ],
+        durationSec: 55,
+        notes: [
+            'Zielzeit: ~55 Sek. | Die sechs Schritte entlang der drei Lebenslinien zügig erklären:',
+            '1–2: Server wählt per kryptografischem Zufall (randomInt) einen der 140 Landstandorte (≥ 400 km Abstand zur Vorrunde) und ruft MET Norway mit 3-Sekunden-Timeout & Circuit-Breaker ab (max. 3 Versuche, R13). Für Runde 1 greift ein Warm-Pool (bis 3 vorvalidierte Orte), für Folgerunden Prefetching (R12).',
+            '3: Der Client erhält nur eine anonymisierte RoundScene + Wetterdaten — niemals Zielkoordinaten oder Ortsnamen (R4).',
+            '4–6: Erst nach Finalisierung, letztem Versuch oder Timeout wertet das Backend den besten Versuch (Best-of-N) per Haversine aus, archiviert bei Konten in GameResult (R18) und gibt Zielort & Punkte frei.',
+        ],
+    },
+
+    13: {
+        id: 13,
+        stationId: 'engineering',
+        theme: 'split',
+        layout: 'challenges',
+        railLabel: 'Engineering',
+        railHeadline: 'Drei zentrale Hürden — gelöst im Code.',
+        railQuote: 'Stand Commit b877221',
+        title: 'Herausforderungen & Lösungen',
+        items: [
+            {
+                number: '01',
+                challenge: 'Standortverbergung & API-Keys (R4 / R19)',
+                problem: 'Street-View-SDK legte Koordinaten im Client offen & brauchte Keys',
+                solution: 'Pivot auf 3D-Biom-Dioramen (140 Orte), MET Norway & Leaflet/Esri → 0 Karten-Keys',
+            },
+            {
+                number: '02',
+                challenge: 'Mehrspieler-Sync & Ladezeit (R12 / R16)',
+                problem: 'Faire Runden (2–16 Spieler) ohne WebSocket-Overhead & Wetter-Latenzen',
+                solution: 'Server-State-Machine, 1-s-Polling, 15-s-Review · Warm-Pool & Prefetching',
+            },
+            {
+                number: '03',
+                challenge: 'Zwischenaudit-Befunde (R2 / R9 / R15 / R17)',
+                problem: 'Detailabweichungen bei Versuchen, Distanzformat, Label-Clipping & Deploy',
+                solution: 'Best-of-N, 0,1-km-Format, wrap-anywhere & Backend-First-CI/CD umgesetzt',
+            },
+        ],
+        durationSec: 105,
+        notes: [
+            'Zielzeit: ~1:45 Min. | Pflichtinhalt „Herausforderungen & Lösungen“ — direkt aus dem realen Projektverlauf belegt (Problem → Lösung):',
+            '01 (Architektur-Pivot): Früher Prototyp nutzte Google Street View. Audit deckte kritisches Problem auf: Client-SDK löste Zielkoordinaten im Browser auf (R4) und brauchte Google-API-Keys (R19). Lösung: Vollständiger Wechsel auf eigene 3D-Biom-Dioramen (7 Biome × 20 Orte = 140 Standorte, inkl. Same-Biome-Distraktoren bei Easy) + MET Norway + Leaflet/Esri.',
+            '02 (Multiplayer & Latenz): Bewusster Trade-off — serverseitige Lobby-State-Machine mit 1-Sekunden-HTTP-Polling vermeidet WebSocket-Betriebskomplexität; gemeinsames 15-s-Review mit Early-Continue hält alle synchron; Warm-Pool & Prefetching halten Rundenstarts schnell.',
+            '03 (Zwischenaudit → Nachbesserung): Das Zwischenaudit vom 24.11. zeigte konkrete Detailabweichungen. Best-of-N vereinheitlicht, formatDistance auf 0,1 km angepasst, truncate durch wrap-anywhere ersetzt und Backend-First-CI/CD (Neon → Render → Vercel) eingerichtet.',
+            'Übergabe an Isabelle (Station 04): Wie bewerten wir Aufwand, Erkenntnisse und Softwarequalität?',
+        ],
+    },
+
+    // =========================================================================
+    // Station 04 — Aufwand & Qualität | Isabelle (14–18 · Zielzeit: 4:00 Min.)
+    // =========================================================================
+
+    14: {
+        id: 14,
+        stationId: 'qualitaet',
+        theme: 'dark',
+        layout: 'divider',
+        sectionNumber: '04',
+        kicker: 'Station 04 · Isabelle',
+        title: 'Aufwand & Qualität',
+        subtitle: 'Plan / Ist · Erkenntnisse · Tests & Fazit',
+        durationSec: 10,
+        notes: [
+            'Kurzer Übergang (~5–10 Sek.) auf Station 04 — Isabelle übernimmt.',
+        ],
+    },
+
+    15: {
+        id: 15,
+        stationId: 'qualitaet',
+        theme: 'light',
+        layout: 'hours',
+        title: 'Aufwandsvergleich Plan / Ist',
+        subtitle: 'Personenstunden je Arbeitspaket · Expertenschätzung',
+        items: [
+            { code: 'AP 01', label: 'Anforderungsanalyse & Planung', plan: '—', actual: '—', delta: '—' },
+            { code: 'AP 02', label: 'UI / UX, 3D-Dioramen & Frontend', plan: '—', actual: '—', delta: '—' },
+            { code: 'AP 03', label: 'Backend, Domain-Logik & PostgreSQL', plan: '—', actual: '—', delta: '—' },
+            { code: 'AP 04', label: 'MET Norway, Leaflet & Multiplayer', plan: '—', actual: '—', delta: '—' },
+            { code: 'AP 05', label: 'Testing, CI/CD, Doku & Präsentation', plan: '—', actual: '—', delta: '—' },
+        ],
+        total: { code: 'Σ', label: 'Gesamt (PStd.)', plan: '—', actual: '—', delta: '—' },
+        risks: [
+            { index: 'R1', title: 'Architektur-Pivot (3D)', text: 'Wechsel von Street View auf R3F-Dioramen & Leaflet' },
+            { index: 'R2', title: 'Externe APIs & Betrieb', text: 'MET-Norway-Caching, Warm-Pool & Deploy' },
+            { index: 'R3', title: 'Detailregeln & QS', text: '20 Anforderungen & 3-stufige Test-Suite' },
+        ],
+        footerBar: 'Transparenz: Plan- & Ist-Personenstunden fehlen im Repository (nicht erfunden) — echte Teamwerte vor Abgabe eintragen',
+        durationSec: 60,
+        notes: [
+            'Zielzeit: ~1:00 Min. | OFFENER PFLICHTPUNKT VOR PRÜFUNG: In den Projektdateien sind keine Plan- oder Ist-Personenstunden dokumentiert. Keine Zahlen erfinden — echte Werte aus der schriftlichen Aufwandsschätzung bzw. Zeiterfassung vor dem Vortrag in slides.js eintragen.',
+            'Rechts die mindestens 3 Schätzrisiken gemäß Prüfungsanforderung knapp erläutern und 1:1 mit dem schriftlichen Portfolio abgleichen.',
+        ],
+    },
+
+    16: {
+        id: 16,
+        stationId: 'qualitaet',
+        theme: 'dark',
+        layout: 'learnings',
+        title: 'Erkenntnisse & Reflexion',
+        items: [
+            {
+                tag: '#plan-ist',
+                title: 'Schätzbarkeit & Tracking',
+                text: 'Laufende Zeiterfassung je AP ist zentral — Abweichungen & Risiken direkt aus echten Ist-Stunden ableiten.',
+            },
+            {
+                tag: '#architektur',
+                title: 'Entkopplung zahlt sich aus',
+                text: 'Service-Grenze & reine Domain-Module (R20) erlaubten den 3D-Pivot ohne Umbau der Spiel- und Scoring-Logik.',
+            },
+            {
+                tag: '#qualität',
+                title: 'Früher Spec-Abgleich',
+                text: 'Zwischenaudit gegen alle 20 Anforderungen deckte reale Lücken (R4, R9, R15) frühzeitig und steuerbar auf.',
+            },
+        ],
+        durationSec: 55,
+        notes: [
+            'Zielzeit: ~55 Sek. | Pflichtbestandteil („Aufwandsgegenüberstellung Plan/Ist & Erkenntnisse“).',
+            'Punkt 01 (nach Stundeneintrag): Konkret beantworten: (a) Welche APs lagen nah am Plan, welche wichen ab und warum? (b) Welche Pakete waren besonders schwer zu schätzen?',
+            'Punkt 02: Saubere Trennung zwischen UI, Service-Schicht und Domain-Logik (R20) machte den späten Wechsel von Street View auf 3D-Dioramen beherrschbar.',
+            'Punkt 03: Unit-Tests allein hätten z. B. das Street-View-SDK-Leak oder abgeschnittene UI-Labels nicht verhindert — erst das Audit gegen alle 20 Anforderungen schloss diese Lücken.',
+        ],
+    },
 
     17: {
         id: 17,
         stationId: 'qualitaet',
-        layout: 'divider',
-        eyebrow: '04 · Qualität',
-        title: 'Anforderungen & Qualität',
-        subtitle: 'Was der Audit über den aktuellen Stand zeigt',
-        body: [
-            'Anforderungsaudit, Testing-Strategie, Live-Demo und Abschluss.',
-            'Ehrlich bilanziert: erfüllt, teilweise erfüllt, nicht erfüllt.',
+        theme: 'light',
+        layout: 'quality',
+        title: 'Anforderungen, Tests & CI/CD',
+        subtitle: 'Stand Commit b877221 · 27.11.2026',
+        audit: {
+            passed: 19,
+            partial: 1,
+            total: 20,
+            mandatoryPassed: 15,
+            mandatoryTotal: 16,
+            progression: 'Zwischenaudit 24.11.: 8 / 20 → Stand b877221: 19 / 20',
+            note: 'R17 (HTTPS-Deploy & Safari/Edge): Pipeline konfiguriert — Live-Check vor Abgabe',
+        },
+        testing: {
+            total: 377,
+            files: 62,
+            bars: [
+                { label: 'Backend Unit', count: 173, detail: '173/173 live grün (Vitest)', pct: 100 },
+                { label: 'Frontend Unit', count: 112, detail: '86 lokal grün · 26 Leaflet CI', pct: 65 },
+                { label: 'Integration (PG 16)', count: 86, detail: '5 DB-Specs (Vitest)', pct: 50 },
+                { label: 'E2E (Playwright)', count: 6, detail: '4 Specs × 3 Browser', pct: 12 },
+            ],
+            ciSteps: [ 'Changes', 'Lint & Build', 'Tests & E2E', 'Migrate → Render → Vercel' ],
+            caveat: 'Keine Code-Coverage-Quote erhoben · Anhang A1 (Taste A): 20-Zeilen-Matrix',
+        },
+        durationSec: 60,
+        notes: [
+            'Zielzeit: ~1:00 Min. | Faktenbasierte Qualitätsbilanz für Commit b877221:',
+            'Links (Anforderungen): Von 8/20 im Zwischenaudit auf 19/20 direkt im Quellcode umgesetzt & getestet (15/16 Pflicht + R17 konfiguriert). R17: Vercel/Render/Neon-CI/CD ist angelegt; Live-Erreichbarkeit & native Safari/Edge-Prüfung vor Abgabe verifizieren.',
+            'Rechts (Tests & CI/CD): 377 automatisierte Testfälle in 62 Dateien über 4 Ebenen (173 Backend Unit live grün; 112 Frontend Unit; 86 Backend-Integration gegen PostgreSQL 16; 6 Full-Stack-Playwright-E2E über Chromium/Firefox/WebKit).',
+            'Backend-First-CI/CD verhindert Frontend/Backend-Versionskonflikte (Prisma Migrate → Render Health Check → Vercel).',
         ],
-        notes: [ 'Übergang: „Wie ehrlich hält das Produkt, was die Spezifikation verlangt? Das zeigt unser Audit."' ],
     },
+
     18: {
         id: 18,
         stationId: 'qualitaet',
-        layout: 'audit',
-        eyebrow: 'Anforderungsaudit',
-        title: 'Acht von zwanzig bestanden',
-        subtitle: 'Audit vom 24.11.2026 - Live-Tests, Code-Analyse, Datenbank-Inspektion',
-        summary: { totalPass: 8, totalPartial: 7, totalFail: 5, total: 20, mandatoryPass: 6, mandatoryTotal: 16 },
-        methodology: [
-            'Live-Tests gegen laufenden Dev-Stack (Datenbank, Backend, Frontend)',
-            'Quellcode-Analyse mit konkreten Datei- und Zeilenverweisen',
-            'Automatisierte Tests: 106/106 Unit-, 64/64 Integrationstests',
-            'Direkte Datenbank-Inspektion und Screenshot-Abgleich',
+        theme: 'split',
+        layout: 'statement',
+        statementLines: [ 'Entdecken.', 'Raten.', 'Dazulernen.' ],
+        eyebrow: 'Fazit',
+        achieved: [
+            '3D-Biom-Dioramen (7 Biome · 140 Orte), MET Norway & Leaflet ohne Karten-Keys',
+            'Einzel- & Mehrspieler (2–16), 2-Runden-Tutorial, 3D-Avatar & /stats-Replays',
+            'Entkoppelte Architektur (R20), 377 Testfälle & Backend-First-CI/CD',
         ],
-        rows: [
-            { nr: 4, text: 'Standort vor Bestätigung verdeckt halten', status: 'nicht bestanden', evidence: 'Client löst echte Koordinaten via Street-View-API vor Bestätigung auf.', critical: true },
-            { nr: 5, text: 'Drei Schwierigkeitsgrade mit festen Regeln', status: 'nicht bestanden', evidence: 'Leicht zeigt 6 statt 4 Kandidaten; Schwer entspricht in den Ländergrenzen noch Mittel.' },
-            { nr: 9, text: 'Distanzberechnung in km, 1 Nachkommastelle', status: 'nicht bestanden', evidence: 'Haversine-Berechnung korrekt, Anzeige rundet nicht spezifikationsgemäß.' },
-            { nr: 15, text: 'Konsistente, responsive Wetteranzeige', status: 'nicht bestanden', evidence: 'Abgeschnittene Wetter-/Städtenamen-Labels bei Desktop-Breite, im Screenshot bestätigt.' },
-            { nr: 17, text: 'Öffentliches HTTPS-Deployment', status: 'nicht bestanden', evidence: 'Kein live erreichbares Deployment vorhanden.' },
-            { nr: 1, text: 'Zufällige, gültige Standortwahl', status: 'teilweise', evidence: 'Kryptografisch zufällige Auswahl aus 30 kuratierten Standorten; keine automatisierte Landflächen-Prüfung.' },
-            { nr: 19, text: 'Geheime API-Keys nur serverseitig', status: 'teilweise', evidence: 'Code trennt Schlüssel korrekt; in dieser Umgebung sind Server- und Public-Key aktuell identisch konfiguriert.' },
-            { nr: 14, text: 'Interaktives Tutorial', status: 'bestanden', evidence: '7/7 End-to-End-Tests live bestanden - laut Audit am besten abgesicherte Anforderung.' },
-            { nr: 16, text: 'Mehrspieler-Lobby mit Leaderboard', status: 'bestanden', evidence: 'Live-Test mit zwei unabhängigen Clients: gleiche Runde, korrekt sortiertes Leaderboard.' },
-            { nr: 20, text: 'Trennung UI / Spiellogik', status: 'bestanden', evidence: '106/106 Unit-Tests ohne Datenbank; Domain-Module ohne Framework-Abhängigkeit.' },
+        open: [
+            'Live-Deployment (Vercel/Render/Neon) & native Browser final prüfen (R17)',
+            'Team-Rollenmatrix & echte Plan/Ist-Stunden ergänzen',
+            'Optional: Coverage-Reporting & weitere Standorte',
         ],
-        closing: 'Kein Punkt wurde als „nicht umsetzbar" oder „nicht überprüfbar" bewertet - jede Anforderung hatte mindestens eine Teilumsetzung und einen nachvollziehbaren Prüfweg. Vollständige 20-Zeilen-Tabelle: REQUIREMENTS_AUDIT.md im Projekt terraguessr.',
+        durationSec: 55,
         notes: [
-            'Die Gesamtzahlen nennen: 8 von 20 Anforderungen vollständig bestanden, 7 teilweise, 5 nicht bestanden; bei den 16 verpflichtenden („Basis"-)Anforderungen 6 von 16 bestanden.',
-            'Den kritischsten Befund transparent erklären: Die client-seitige Google-Street-View-Anbindung löst die echten Koordinaten im Browser auf, bevor der Tipp bestätigt wird - das widerspricht Anforderung Nr. 4 direkt.',
-            'Betonen, dass kein Punkt als "nicht umsetzbar" bewertet wurde - jede Anforderung hat mindestens eine Teilumsetzung und einen nachvollziehbaren Prüfweg (Code, Live-Test oder beides).',
-            'Diese Station zeigt eine verdichtete Auswahl von 10 der 20 Zeilen (Vortragstauglichkeit) - auf Nachfrage auf die vollständige Tabelle in REQUIREMENTS_AUDIT.md verweisen.',
+            'Zielzeit: ~55 Sek. | Roter Faden zurück zu Station 01: Aus der Idee „Geografie über Indizien“ ist eine spielbare Full-Stack-Webanwendung geworden.',
+            'Kurz bilanzieren, was läuft und welche Restpunkte sauber abgeschlossen werden.',
+            'Überleitung zur Live-Demo: „Statt weiter über TerraGuessr zu sprechen, spielen wir jetzt gemeinsam eine Runde live.“',
         ],
     },
+
+    // =========================================================================
+    // Live-Demo & Q&A | Gesamtes Team (19–20)
+    // =========================================================================
+
     19: {
         id: 19,
         stationId: 'qualitaet',
-        layout: 'testing',
-        eyebrow: 'Testing & Qualitätssicherung',
-        title: 'Drei Testebenen, eine CI-Pipeline',
-        tiers: [
-            { label: 'Unit-Tests', tool: 'Vitest', result: '106 / 106 bestanden', note: 'Keine Datenbank erforderlich - Domain-Module sind reine Funktionen.' },
-            { label: 'Integrationstests', tool: 'Vitest + PostgreSQL', result: '64 / 64 bestanden', note: 'Gegen eine isolierte, nach dem Lauf verworfene Test-Datenbank.' },
-            { label: 'End-to-End (Tutorial)', tool: 'Playwright', result: '7 / 7 bestanden', note: 'Live gegen den echten Dev-Server - laut Audit der am besten getestete Bereich.' },
+        theme: 'dark',
+        layout: 'demo',
+        title: 'TerraGuessr live',
+        subtitle: 'Live-Demo · 5–10 Minuten',
+        steps: [
+            { number: '01', title: 'Start & 3D-Avatar', text: 'Globus, Explorer-Avatar & Direktstart' },
+            { number: '02', title: 'Setup', text: 'Easy / Medium / Hard & Rundenwahl' },
+            { number: '03', title: 'Publikumsrunde', text: 'Biom & Live-Wetter gemeinsam deuten' },
+            { number: '04', title: 'Auswertung', text: 'Zielort, 0,1-km-Distanz & Punkte' },
+            { number: '05', title: 'Mehrspieler-Lobby', text: '6-stelliger Code, 2 Clients & 15-s-Review' },
         ],
-        ciSteps: [
-            'GitHub Actions, drei Jobs: Backend, Frontend, E2E',
-            'Je Job: Lint, Typecheck, Build, automatisierte Tests',
-            'Backend-Job läuft gegen einen echten PostgreSQL-Service-Container',
-            'Auslöser: Push/PR auf main und integration/phase1',
-        ],
-        caveats: [
-            'Testanzahl ist keine Code-Abdeckung - im Projekt existiert keine Coverage-Kennzahl.',
-            'Tests gegen echte Kartendienste laufen nicht in der CI - genau dort lagen laut Audit die schwerwiegendsten Befunde (Nr. 4, Nr. 5).',
-        ],
+        prompt: {
+            label: 'Publikumsrunde',
+            question: 'Wo auf der Welt sind wir?',
+            hint: 'Deuten Sie Biom, Wetter & Tageszeit — wir setzen den Tipp gemeinsam auf der Karte.',
+            clues: [ '3D-Biom', 'Temperatur & Regen', 'Wind & Tageszeit', 'Höhe & UV' ],
+        },
+        durationSec: 480,
         notes: [
-            'Die drei Testebenen nennen: Unit-Tests (Vitest), Integrationstests (gegen eine echte, isolierte Postgres-Instanz), End-to-End-Tests (Playwright).',
-            'Explizit klarstellen: Testanzahl ist keine Code-Abdeckung - im Projekt existiert keine Coverage-Kennzahl, also wird auch keine genannt.',
-            'Die CI-Pipeline kurz erläutern (GitHub Actions, drei Jobs: Backend, Frontend, E2E).',
-            'Transparent benennen: Ein Teil der E2E-Spezifikationen gegen echte Kartendienste läuft standardmäßig nicht in der CI und benötigt echte Zugangsdaten - dadurch bleiben manche Integrationsfehler zunächst unentdeckt.',
+            'Zielzeit: 5–10 Min. (Richtwert ~8 Min.) | Pflichtbestandteil & zentrale Publikumsaktivierung.',
+            'VORBEREITUNG VOR DEM VORTRAG: 1) `docker compose up -d` & `npm run dev --prefix frontend` (:8080) starten — ODER Live-URL prüfen. 2) Keine Google-Maps-API-Keys nötig. 3) Zweites Browserfenster für Mehrspieler-Beitritt bereithalten.',
+            'Notfall-Backup bei Netzausfall: Aktuelle Screenshots auf Folien 07–09. Danach weiter zu Folie 20 („Vielen Dank. Fragen?“).',
         ],
     },
+
     20: {
         id: 20,
         stationId: 'qualitaet',
-        layout: 'demo',
-        eyebrow: 'Live-Demo',
-        title: 'Jetzt live: die echte Anwendung',
-        subtitle: 'Kein öffentliches Deployment (Audit Nr. 17) - die Demo läuft lokal',
-        steps: [
-            { number: '01', label: 'Start & Tutorial zeigen' },
-            { number: '02', label: 'Einzelspieler-Runde spielen' },
-            { number: '03', label: 'Mehrspieler-Lobby zeigen' },
-        ],
-        fallbackText: 'Kein öffentliches Deployment (Audit Nr. 17) - Demo läuft lokal über „npm run dev" im Ordner terraguessr/frontend. Backup: die echten Screenshots an der Station Produktrundgang.',
-        returnNote: 'Rückkehr: Browser-Tab bzw. Fenster zu dieser 3D-Präsentation zurückwechseln und Esc drücken - die Erkundung setzt exakt an der vorherigen Position fort.',
+        theme: 'dark',
+        layout: 'qa',
+        title: 'Vielen Dank.',
+        question: 'Fragen?',
+        byline: 'Maksym · Linus · Yevhen · Isabelle',
+        academicLine: 'TerraGuessr · SWE Kurs B · Gruppe D · 2026',
+        hint: '4 Min. Diskussion & Q&A · Taste A für Anhang A1 (20 Anforderungen)',
+        durationSec: 240,
         notes: [
-            'Es existiert kein öffentliches Deployment (Anforderungsaudit, Nr. 17 nicht bestanden) - die Demo läuft lokal über `npm run dev` im Ordner terraguessr/frontend, ohne Datenbank oder Docker.',
-            'Ablaufvorschlag (ca. 7 Minuten): 0:00-1:00 Startseite und Tutorial zeigen · 1:00-3:00 Einzelspieler-Runde spielen, Publikum nach Hinweisen fragen · 3:00-5:00 Mehrspieler-Lobby mit zwei Geräten zeigen (echte Anbindung, kein Mock) · 5:00-7:00 Zusammenfassung und Rückkehr zur Präsentation.',
-            'Vorab auf dem Vortragsgerät testen. Backup: die Screenshots an der Station Produktrundgang. Kein Backup als Live-Demo ausgeben.',
-            'Technisch: terraguessr läuft als eigener Prozess/Tab neben diesem 3D-Fenster - kein Iframe, keine Integration. Rückkehr per Tab-/Fensterwechsel und Esc.',
-        ],
-    },
-    21: {
-        id: 21,
-        stationId: 'qualitaet',
-        layout: 'conclusion',
-        eyebrow: 'Abschluss',
-        lines: [ 'Entdecken.', 'Raten.', 'Dazulernen.' ],
-        subline: 'Von der Projektidee zum Geografie-Spiel - und zu konkreten Erkenntnissen über Software Engineering.',
-        achievements: [
-            'Entdecken, Raten, Vergleichen - umgesetzt in Einzel- und Mehrspieler, live bestätigt.',
-            '8/20 Anforderungen vollständig, 7 teilweise - keine als „nicht umsetzbar" bewertet.',
-        ],
-        limitations: [
-            'Standort vor Bestätigung client-seitig offengelegt (Anforderung Nr. 4, kritisch).',
-            'Kein öffentliches Deployment; Team-Rollen & Aufwand noch zu bestätigen.',
-        ],
-        closing: [ 'Danke.', 'Fragen?' ],
-        notes: [
-            'TerraGuessr verbindet Geografie, interaktive Spielmechanik und Softwareentwicklung.',
-            'Neben dem Produkt haben wir wichtige Erkenntnisse über Planung, Integration und Qualitätssicherung gewonnen - einschließlich der Punkte, die laut Audit noch offen sind.',
-            'Vielen Dank für eure Aufmerksamkeit. Habt ihr Fragen?',
+            'Zielzeit: 4 Min. Q&A (1 Min. pro Teammitglied).',
+            'Diese Folie erst NACH Abschluss der Live-Demo einblenden; Fragen fair im 4er-Team aufteilen.',
+            'Bei Detailfragen zu einzelnen der 20 Anforderungen: Taste A öffnet Anhang A1 (Vollständige Anforderungsmatrix Stand b877221).',
         ],
     },
 }
+
+/**
+ * Optional appendix slide — strictly outside the main timed presentation flow.
+ * Accessible on demand during Q&A via key `A` and included as an appendix in the static PDF export.
+ */
+export const APPENDIX_SLIDES = [
+    {
+        id: 'A1',
+        stationId: 'qualitaet',
+        theme: 'light',
+        layout: 'appendix-audit',
+        title: 'Alle 20 Anforderungen im Überblick',
+        subtitle: 'Anhang A1 · Abgleich docs/ruquirements.md gegen Commit b877221 (27.11.2026)',
+        rows: [
+            { nr: 1, text: 'Zufälliger Landstandort (140 Orte · 7 Biome · ≥ 400 km)', obligation: 'muss', kano: 'Basis', status: 'umgesetzt' },
+            { nr: 2, text: 'Submit Guess / Final Submit · Best-of-N · Sperre', obligation: 'muss', kano: 'Basis', status: 'umgesetzt' },
+            { nr: 3, text: 'Live-Wetterdaten via MET Norway (≤ 120 Min.)', obligation: 'muss', kano: 'Basis', status: 'umgesetzt' },
+            { nr: 4, text: 'Zielort bis Rundenende serverseitig verborgen', obligation: 'muss', kano: 'Basis', status: 'umgesetzt' },
+            { nr: 5, text: 'Easy (6 Städte) · Medium (−100 Pkt.) · Hard (−20 s)', obligation: 'sollte', kano: 'Begeisterung', status: 'umgesetzt' },
+            { nr: 6, text: 'Kern-Wetterdaten mit Einheiten bei Rundenstart', obligation: 'muss', kano: 'Basis', status: 'umgesetzt' },
+            { nr: 7, text: 'Tipp über 6-Städte-Auswahl oder Leaflet-Weltkarte', obligation: 'muss', kano: 'Basis', status: 'umgesetzt' },
+            { nr: 8, text: 'Beliebiges Ändern vor Bestätigung · Timeout-Wertung', obligation: 'muss', kano: 'Basis', status: 'umgesetzt' },
+            { nr: 9, text: 'Haversine-Distanz in km (1 Dezimalstelle)', obligation: 'muss', kano: 'Basis', status: 'umgesetzt' },
+            { nr: 10, text: 'Punkteformel (0–5.000 · ≤ 100 km = 5.000 · monoton)', obligation: 'muss', kano: 'Leistung', status: 'umgesetzt' },
+            { nr: 11, text: 'Zielort, bester Tipp & alle Versuche auf Karte', obligation: 'muss', kano: 'Basis', status: 'umgesetzt' },
+            { nr: 12, text: 'Nächste Runde ≤ 2 s (Warm-Pool & Prefetching)', obligation: 'muss', kano: 'Leistung', status: 'umgesetzt' },
+            { nr: 13, text: 'Wetter-Timeout 3 s · max. 3 Orte · sauberer Abbruch', obligation: 'muss', kano: 'Basis', status: 'umgesetzt' },
+            { nr: 14, text: 'Interaktives 2-Runden-Tutorial & Field Guide', obligation: 'sollte', kano: 'Begeisterung', status: 'umgesetzt' },
+            { nr: 15, text: 'Einheitliche, responsive Wetteranzeige (ohne Clipping)', obligation: 'muss', kano: 'Basis', status: 'umgesetzt' },
+            { nr: 16, text: 'Mehrspieler (2–16) · 15-s-Review · Rangliste & Rematch', obligation: 'sollte', kano: 'Begeisterung', status: 'umgesetzt' },
+            { nr: 17, text: 'Öffentliches HTTPS-Deployment & Browser-Kompatibilität', obligation: 'muss', kano: 'Basis', status: 'konfiguriert' },
+            { nr: 18, text: '6-Monats-Archivierung (Konten) & täglicher Cron-Purge', obligation: 'sollte', kano: 'Unerheblich', status: 'umgesetzt' },
+            { nr: 19, text: 'Geheime Keys nur serverseitig (0 Karten-/Wetter-Keys)', obligation: 'muss', kano: 'Basis', status: 'umgesetzt' },
+            { nr: 20, text: 'Trennung UI (services/index.ts) & reine Domain-Logik', obligation: 'muss', kano: 'Unerheblich', status: 'umgesetzt' },
+        ],
+        footnote: 'Gesamt: 19/20 direkt im Code umgesetzt & getestet · R17 als Vercel/Render/Neon-CI/CD + Playwright (Chromium/Firefox/WebKit) konfiguriert.',
+    },
+]
 
 export function getSlide(id)
 {

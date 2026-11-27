@@ -1,1853 +1,1984 @@
 // =============================================================================
-// TerraGuessr presentation overlay — Phase 6 art direction
+// TerraGuessr Presentation — Corporate Minimalist Design System
 //
-// Palette mirrors the real TerraGuessr app (frontend/src/styles/index.css) and
-// ZoneIdentity.js: deep indigo-violet space, warm cream ink, a confident lime
-// brand accent plus sky/amber/violet secondaries. Surfaces are warm and solid
-// (layered soft shadows, hairline light borders) — never glassmorphism.
+// Translates executive presentation architecture (crisp white vs. deep cosmic
+// midnight indigo, sharp alignment, generous negative space, slanted accent
+// dividers, bottom anchor bands, and minimalist charts) into TerraGuessr's
+// authentic brand palette and geographical identity.
+//
+// Strict discipline: zero gradients, zero glows, zero rounded cards,
+// zero decorative icons. Backgrounds stay subtly translucent over the live
+// 3D world and become solid matte in print / standalone linear modes.
+//
+// Note: Host app sets html { font-size: 20px } (1rem = 20px).
 // =============================================================================
 
-space950 = #090718
-space900 = #0e0b20
-space850 = #14112a
-space800 = #1a1636
-space700 = #221c41
-space600 = #2b2452
-space500 = #352d64
-cream = #fbf7ee
-muted = #bdb5d8
-subtle = #948bac
-lime300 = #d7ff96
-lime400 = #c0f66b
-lime500 = #a8e04e
-lime600 = #86c334
-ink = #1b2a10
-amber = #ffb45e
-sky = #57c4e8
-violet = #9d7dff
-rose = #f27f88
+navy = #0f1021
+navy-soft = #181a32
+white = #ffffff
+mist = #f3f4f8
 
-shadow-card = 0 12px 32px alpha(#050310, 0.45), 0 2px 6px alpha(#050310, 0.3)
-shadow-panel = 0 26px 60px alpha(#050310, 0.55), 0 3px 10px alpha(#050310, 0.32)
-hairline = 1px solid alpha(#ffffff, 0.1)
+ink = #121429
+ink-body = #3b3f58
+ink-muted = #6e738c
+ink-subtle = #9499b0
 
-// Fluid type scale — every size below is readable from the back of a
-// lecture hall at typical presentation-display widths (1280–1920px) and
-// scales gently with viewport width instead of sitting at a fixed px/rem
-// value. Only hero/title sizes (which already used clamp()) sit outside
-// this scale; everything else routes through one of these tokens.
-fs-2xs = clamp(0.84rem, 0.78rem + 0.3vw, 0.95rem)   // source tags, micro-labels
-fs-xs = clamp(0.92rem, 0.85rem + 0.35vw, 1.05rem)    // captions, pills, badges, muted notes
-fs-sm = clamp(1.02rem, 0.94rem + 0.4vw, 1.16rem)     // secondary body, compact lists, table cells
-fs-base = clamp(1.1rem, 1rem + 0.45vw, 1.28rem)      // primary body copy, list items, notes
-fs-md = clamp(1.22rem, 1.1rem + 0.55vw, 1.42rem)     // card/step sub-headings
-fs-lg = clamp(1.42rem, 1.25rem + 0.75vw, 1.7rem)     // emphatic step headings
+light-ink = #f7f8fc
+light-body = #c5c9dc
+light-muted = #8388a3
+light-subtle = #5f6580
+
+lime = #bae862
+lime-mid = #6b9e24
+forest = #2b6e35
+ocean = #3b6fd4
+amber-light = #b85d19
+amber-dark = #e5a446
+
+hair-light = rgba(18, 20, 41, 0.12)
+hair-light-strong = rgba(18, 20, 41, 0.26)
+hair-dark = rgba(247, 248, 252, 0.14)
+hair-dark-strong = rgba(247, 248, 252, 0.28)
+
+font-display = "Barlow", "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif
+font-body = "DM Sans", "Barlow", -apple-system, BlinkMacSystemFont, sans-serif
+font-mono = "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace
 
 .presentation
     position fixed
-    top 0
-    left 0
-    width 100%
-    height 100%
+    inset 0
     z-index 20
     pointer-events none
     opacity 0
     visibility hidden
-    transition opacity 0.4s ease, visibility 0.4s ease
-    font-family "Nunito", sans-serif
-    color cream
-    --accent lime400
-    --accent-rgb 192, 246, 107
+    transition opacity 0.3s ease, visibility 0.3s ease
+    font-family font-body
+    color ink
+    -webkit-font-smoothing antialiased
 
     &.is-visible
         opacity 1
         visibility visible
 
-    // Neutralise the host app's global list chrome (general.styl) — every
-    // list inside the deck supplies its own spacing, markers and geometry.
-    ul
-    ol
+    ul, ol
         margin 0
         padding 0
+        list-style none
 
-    // --- background treatment ------------------------------------------------
+    // =========================================================================
+    // Translucent Matte Backdrops (3D World Subtly Alive Behind Slides)
+    // =========================================================================
 
     &__scrim
         position absolute
         inset 0
-        background radial-gradient(115% 90% at 82% 8%, alpha(space600, 0.5) 0%, transparent 52%), linear-gradient(158deg, alpha(space950, 0.98) 0%, alpha(space900, 0.95) 42%, alpha(space850, 0.92) 100%)
+        background-color transparent
+        transition background-color 0.3s ease
 
-    &__pattern
-        position absolute
-        inset 0
-        background-image radial-gradient(alpha(cream, 0.055) 1.1px, transparent 1.1px)
-        background-size 28px 28px
-        opacity 0.5
-        pointer-events none
+    &[data-theme="dark"]
+        color light-ink
 
-    &__watermark
-        position absolute
-        right 6px
-        bottom -0.12em
-        z-index 1
-        font-family "Fredoka", ui-rounded, sans-serif
-        font-weight 700
-        font-size 34rem
-        line-height 0.8
-        color alpha(cream, 0.035)
-        pointer-events none
-        user-select none
+        .presentation__scrim
+            background-color rgba(15, 16, 33, 0.83)
+            backdrop-filter blur(5px)
+            -webkit-backdrop-filter blur(5px)
 
-    // --- chrome --------------------------------------------------------------
+    &[data-theme="light"]
+        color ink
 
-    &__stations
+        .presentation__scrim
+            background-color rgba(255, 255, 255, 0.88)
+            backdrop-filter blur(5px)
+            -webkit-backdrop-filter blur(5px)
+
+    &[data-theme="split"]
+        color ink
+
+        .presentation__scrim
+            background-color transparent
+            backdrop-filter blur(5px)
+            -webkit-backdrop-filter blur(5px)
+
+    // Solid matte surfaces when no 3D canvas is mounted (?print=1 & ?linear=1)
+    &[data-flow="print"],
+    &[data-standalone="true"]
+        .presentation__scrim
+            backdrop-filter none
+            -webkit-backdrop-filter none
+
+        &[data-theme="dark"] .presentation__scrim
+            background-color navy
+
+        &[data-theme="light"] .presentation__scrim
+            background-color white
+
+        .split-layout__dark
+            background-color navy
+
+        .split-layout__light
+            background-color white
+
+        .anchor-band
+            background-color navy
+
+    // =========================================================================
+    // Minimal Corporate Chrome (Top-Right Wordmark + Quiet Bottom-Right Number)
+    // =========================================================================
+
+    &__brand
         position absolute
         top 30px
-        left 50%
-        transform translateX(-50%)
-        display flex
-        gap 10px
-        pointer-events auto
-        z-index 3
-
-        @media only screen and (max-width 640px)
-            top 14px
-            gap 6px
-
-    &__station-dot
-        display flex
-        align-items center
-        gap 8px
-        padding 8px 15px
-        border-radius 999px
-        border hairline
-        background alpha(space900, 0.6)
-        color alpha(cream, 0.62)
-        font-family "Fredoka", ui-rounded, sans-serif
-        font-weight 600
-        font-size 0.8rem
-        letter-spacing 0.02em
-        cursor pointer
-        transition border-color 0.2s ease, color 0.2s ease, background 0.2s ease, transform 0.2s ease
-
-        .presentation__station-index
-            opacity 0.6
-
-        html:not(.is-mode-touch) &:hover
-            border-color alpha(cream, 0.5)
-            color cream
-            transform translateY(-1px)
-
-        &.is-active
-            border-color var(--accent, lime400)
-            color cream
-            background alpha(space600, 0.6)
-
-            .presentation__station-index
-                color var(--accent, lime400)
-                opacity 1
-
-        @media only screen and (max-width 640px)
-            padding 6px 10px
-            font-size 0.7rem
-
-            .presentation__station-title
-                display none
-
-    &__close
-        position absolute
-        top 26px
-        right 26px
-        z-index 3
-        display none
-        align-items center
-        justify-content center
-        width 42px
-        height 42px
-        border-radius 50%
-        border hairline
-        background alpha(space900, 0.6)
-        color cream
-        font-size 1.5rem
-        line-height 1
-        cursor pointer
-        pointer-events auto
-        transition border-color 0.2s ease, color 0.2s ease, background 0.2s ease
-
-        html:not(.is-mode-touch) &:hover
-            border-color alpha(cream, 0.5)
-            color lime300
-
-        @media only screen and (max-width 640px)
-            top 14px
-            right 14px
-            width 34px
-            height 34px
-            font-size 1.25rem
-
-    &__hints
-        position absolute
-        right 26px
-        bottom 22px
-        z-index 3
-        display flex
-        flex-direction column
-        align-items flex-end
-        gap 4px
+        right 64px
+        z-index 6
+        font-family font-display
+        font-weight 700
         font-size 0.72rem
-        letter-spacing 0.02em
-        color alpha(cream, 0.4)
+        letter-spacing 0.24em
+        text-transform uppercase
+        pointer-events none
+        user-select none
+        opacity 0.55
 
-        i
+        span
+            color ink
+
+        em
             font-style normal
-            padding 1px 6px
-            margin 0 2px
-            border-radius 5px
-            border 1px solid alpha(cream, 0.28)
-            font-weight 600
+            color forest
 
-        @media only screen and (max-width 640px)
-            display none
+    &[data-theme="dark"] &__brand
+        opacity 0.72
 
-    &__section-nav
-        display flex
-        align-items center
-        gap 1em
-        margin-top auto
-        padding-top 1.2em
+        span
+            color light-ink
 
-    &__section-count
-        font-size 0.8rem
-        font-weight 600
-        letter-spacing 0.03em
-        color alpha(cream, 0.5)
+        em
+            color lime
 
-    &__finish
+    &[data-layout="title"] &__brand,
+    &[data-layout="qa"] &__brand
         display none
-        align-items center
-        gap 8px
-        padding 11px 22px
-        border-radius 999px
-        border 1.5px solid var(--accent, lime400)
-        background alpha(space900, 0.4)
-        color cream
-        font-family "Fredoka", ui-rounded, sans-serif
-        font-weight 600
-        font-size 0.85rem
-        cursor pointer
-        pointer-events auto
-        transition border-color 0.2s ease, background 0.2s ease, transform 0.2s ease
 
-        &.is-visible
-            display inline-flex
+    &__footer-chrome
+        position absolute
+        right 64px
+        bottom 24px
+        z-index 6
+        pointer-events none
 
-        html:not(.is-mode-touch) &:hover
-            background alpha(space600, 0.6)
-            transform translateY(-1px)
+    &__slide-num
+        font-family font-display
+        font-size 0.78rem
+        font-weight 400
+        letter-spacing 0.04em
+        color ink-subtle
+        font-variant-numeric tabular-nums
 
-    // --- stage & header ------------------------------------------------------
+    &[data-theme="dark"] &__slide-num,
+    &[data-layout="agenda"] &__slide-num,
+    &[data-layout="goals"] &__slide-num,
+    &[data-layout="team"] &__slide-num,
+    &[data-layout="hours"] &__slide-num
+        color light-muted
+
+    &[data-layout="title"] &__footer-chrome,
+    &[data-layout="qa"] &__footer-chrome
+        display none
+
+    // =========================================================================
+    // Stage & Shared Architectural Primitives
+    // =========================================================================
 
     &__stage
         position absolute
         inset 0
         z-index 2
-        padding 64px 72px
         display flex
 
-        @media only screen and (max-width 900px)
-            padding 56px 36px 80px
-
-        @media only screen and (max-width 640px)
-            padding 44px 20px 76px
-
-    &__stage-inner
-        width 100%
-        display flex
-        flex-direction column
-        align-items flex-start
-
-    // wide layouts centre the content block within the viewport
-    &[data-density="wide"]
-        .presentation__stage
-            align-items stretch
-
-        .presentation__stage-inner
-            max-width 1320px
-            margin 0 auto
-            width 100%
-            justify-content flex-start
-
-    &__eyebrow
-        display inline-flex
-        align-items center
-        gap 12px
-        margin-bottom 0.7em
-        font-family "Fredoka", ui-rounded, sans-serif
-        font-weight 600
-        font-size 0.82rem
-        letter-spacing 0.16em
-        text-transform uppercase
-        color var(--accent, lime400)
-
-        &::before
-            content ""
-            width 30px
-            height 2px
-            border-radius 2px
-            background var(--accent, lime400)
-
-    &__title
-        margin-bottom 0.3em
-        font-family "Fredoka", ui-rounded, sans-serif
-        font-weight 700
-        font-size clamp(2rem, 4.2vw, 3.2rem)
-        line-height 1.04
-        letter-spacing 0.01em
-        text-wrap balance
-
-    &__subtitle
-        margin-bottom 1.1em
-        font-size clamp(1.15rem, 1.05rem + 0.4vw, 1.3rem)
-        font-weight 600
-        color muted
-
+    &__stage-inner,
     &__content
         width 100%
-        font-size fs-base
-        line-height 1.5
+        height 100%
+        display flex
 
-    // --- shared primitives ----------------------------------------------------
-
-    .list
+    .slide-frame
+        width 100%
+        height 100%
         display flex
         flex-direction column
-        gap 0.5em
-        list-style none
-        opacity 0.94
 
-        &--compact
-            gap 0.34em
-            font-size fs-sm
-            opacity 0.88
+    .slide-body
+        flex 1
+        width 100%
+        max-width 1560px
+        margin 0 auto
+        padding 64px 88px 54px
+        display flex
+        flex-direction column
+        min-height 0
 
-        li
-            position relative
-            padding-left 1.15em
+        @media only screen and (max-width 1200px)
+            padding 48px 52px 42px
 
-            &::before
-                content ""
-                position absolute
-                left 0
-                top 0.62em
-                width 6px
-                height 6px
-                border-radius 2px
-                background var(--accent, lime400)
-                transform rotate(45deg)
+    .slide-frame--with-band
+        .slide-body
+            padding-bottom 36px
 
-    .note
-        opacity 0.86
-        font-size fs-base
+    // Full-bleed dark bottom anchor band (Reference Pages 4, 5, 9)
+    .anchor-band
+        flex-shrink 0
+        width 100%
+        background-color rgba(15, 16, 33, 0.92)
+        padding 28px 120px
+        display flex
+        align-items center
+        justify-content center
+        text-align center
 
-        &--muted
-            opacity 0.64
-            font-size fs-sm
+        @media only screen and (max-width 1200px)
+            padding 22px 64px
 
-        &--callout
-            opacity 0.96
-            padding 13px 18px
-            border-radius 16px
-            border-left 3px solid var(--accent, lime400)
-            background alpha(space900, 0.5)
-            font-size fs-sm
-
-    .pill
-        display inline-block
-        padding 5px 13px
-        border-radius 999px
-        border 1px solid alpha(cream, 0.22)
-        background alpha(space800, 0.5)
-        font-family "Fredoka", ui-rounded, sans-serif
-        font-weight 500
-        font-size fs-xs
-        letter-spacing 0.01em
-        color cream
-        white-space nowrap
-
-    .badge
-        display inline-block
-        padding 3px 11px
-        border-radius 999px
-        font-size fs-xs
-        font-weight 700
-        white-space nowrap
-        letter-spacing 0.01em
-
-        &[data-status="bestanden"], &[data-status="gelöst"]
-            background alpha(lime500, 0.14)
-            border 1px solid alpha(lime400, 0.55)
-            color lime300
-
-        &[data-status="teilweise"], &[data-status="in Arbeit"]
-            background alpha(amber, 0.14)
-            border 1px solid alpha(amber, 0.5)
-            color #ffc88a
-
-        &[data-status="nicht bestanden"], &[data-status="offen"]
-            background alpha(rose, 0.14)
-            border 1px solid alpha(rose, 0.55)
-            color #ff9da3
-
-    .shot
-        margin 0
-
-        img
-            display block
-            width 100%
-            height auto
-            border-radius 18px
-            border hairline
-            box-shadow shadow-card
-
-        figcaption
-            margin-top 0.45em
-            opacity 0.5
-            font-size fs-2xs
-
-    // ==========================================================================
-    // Title (01)
-    // ==========================================================================
-
-    &[data-layout="title"]
-        .presentation__stage
-            align-items center
-            justify-content center
-            text-align center
-
-        .presentation__stage-inner
-            align-items center
-
-        .presentation__eyebrow,
-        .presentation__title,
-        .presentation__subtitle
-            display none
-
-        .presentation__content
-            max-width 900px
-
-        .hero--title
-            display flex
-            flex-direction column
-            align-items center
-            gap 0.3em
-
-        .hero__eyebrow
-            margin-bottom 0.2em
-            font-family "Fredoka", ui-rounded, sans-serif
-            font-weight 600
-            font-size 0.9rem
-            letter-spacing 0.22em
-            text-transform uppercase
-            color muted
-
-        .hero__earth
-            margin 0.2em 0 0.1em
-            filter drop-shadow(0 24px 50px alpha(lime400, 0.12))
-
-        .hero__title
-            font-family "Fredoka", ui-rounded, sans-serif
-            font-weight 700
-            font-size clamp(3.4rem, 9vw, 7.4rem)
-            line-height 0.98
+        p
+            font-family font-display
+            font-weight 400
+            font-size clamp(0.95rem, 1.15vw, 1.12rem)
+            line-height 1.4
+            color lime
             letter-spacing 0.01em
-            color cream
-
-        .hero__subtitle
-            font-size clamp(1.2rem, 2.2vw, 1.6rem)
-            font-weight 600
-            color lime300
-
-        .hero__byline
-            margin-top 0.6em
-            font-size 1rem
-            color muted
-            letter-spacing 0.02em
-
-    // ==========================================================================
-    // Agenda (02)
-    // ==========================================================================
-
-    &[data-layout="agenda"]
-        .presentation__stage
-            align-items center
-
-        .presentation__stage-inner
-            align-items center
-            text-align center
-
-        .presentation__eyebrow
-            &::before
-                display none
-
-        .presentation__content
-            max-width 1200px
-            margin-top 1em
-
-        .route
-            position relative
-            width 100%
-
-        .route__line
-            position absolute
-            top 35px
-            left 12.5%
-            right 12.5%
-            height 2px
-            background linear-gradient(90deg, unquote("rgba(var(--accent-rgb, 192, 246, 107), 0.10)"), unquote("rgba(var(--accent-rgb, 192, 246, 107), 0.70)"), unquote("rgba(var(--accent-rgb, 192, 246, 107), 0.10)"))
-            z-index 0
-
-            @media only screen and (max-width 900px)
-                display none
-
-        .route__stops
-            position relative
-            z-index 1
-            display grid
-            grid-template-columns repeat(4, minmax(0, 1fr))
-            gap 16px
-            list-style none
+            max-width 88ch
             margin 0
 
-            @media only screen and (max-width 900px)
-                grid-template-columns minmax(0, 1fr) minmax(0, 1fr)
-                row-gap 34px
+    .slide-head
+        margin-bottom clamp(1.5rem, 3.4vh, 2.5rem)
+        flex-shrink 0
 
-            @media only screen and (max-width 640px)
-                grid-template-columns minmax(0, 1fr)
+        &--center
+            text-align center
 
-        .route__stop
-            display flex
-            flex-direction column
-            align-items center
-            gap 8px
-            padding 0 10px
-
-        .route__glyph
-            display flex
-            align-items center
-            justify-content center
-            width 70px
-            height 70px
-            border-radius 50%
-            background space900
-            border 1px solid alpha(cream, 0.16)
-            box-shadow shadow-card
-
-            svg
-                width 44px
-                height 44px
-
-        .route__index
-            font-family "Fredoka", ui-rounded, sans-serif
+        &__title
+            font-family font-display
             font-weight 700
-            font-size fs-xs
-            letter-spacing 0.1em
-            color var(--accent, lime400)
+            font-size clamp(2.1rem, 3.1vw, 2.9rem)
+            line-height 1.06
+            letter-spacing -0.025em
+            color ink
+            margin 0
 
-        .route__label
-            font-family "Fredoka", ui-rounded, sans-serif
-            font-weight 600
-            font-size fs-lg
-            line-height 1.15
-
-        .route__detail
-            font-size fs-sm
-            color muted
+        &__subtitle
+            font-family font-display
+            font-weight 400
+            font-size clamp(0.95rem, 1.15vw, 1.12rem)
+            color ink-muted
+            margin 0.35em 0 0
             line-height 1.35
 
-    // ==========================================================================
-    // Chapter dividers (03, 06, 11, 17)
-    // ==========================================================================
+    &[data-theme="dark"]
+        .slide-head__title
+            color light-ink
 
-    &[data-layout="divider"]
-        .presentation__stage
-            align-items center
+        .slide-head__subtitle
+            color light-muted
 
-        .presentation__stage-inner
-            align-items flex-start
+        .slide-footnote
+            color light-muted
+            border-top-color hair-dark
 
-        .presentation__title
-            font-size clamp(2.8rem, 7vw, 5.6rem)
-            line-height 0.96
-            max-width 15ch
+    .slide-footnote
+        margin-top auto
+        padding-top 14px
+        border-top 1px solid hair-light
+        font-size 0.74rem
+        font-weight 400
+        color ink-muted
+        line-height 1.4
 
-        .presentation__subtitle
-            font-size 1.15rem
+    // Signature slanted lime divider (Reference Pages 12 & 28)
+    .slant-divider
+        width 1.5px
+        height 100%
+        min-height 240px
+        max-height 460px
+        background lime
+        opacity 0.85
+        transform rotate(7deg)
+        align-self center
+        justify-self center
 
-        .presentation__content
-            margin-top 1em
-            max-width 640px
+    // 3-segment accent underline (Reference Page 14)
+    .seg-rule
+        display flex
+        gap 5px
+        width 104px
+        height 2.5px
+        margin 10px 0 16px
 
-        .divider
-            position relative
-            width 100%
-            display grid
-            grid-template-columns auto minmax(0, 1fr)
-            gap 2.5em
-            align-items center
-
-            @media only screen and (max-width 900px)
-                grid-template-columns minmax(0, 1fr)
-
-        .divider__glyph
-            display flex
-            align-items center
-            justify-content center
-            width 150px
-            height 150px
-            border-radius 28px
-            border hairline
-            background alpha(space900, 0.5)
-            box-shadow shadow-panel
-
-            svg
-                width 112px
-                height 112px
-
-            @media only screen and (max-width 900px)
-                width 110px
-                height 110px
-                border-radius 22px
-
-        .divider__body
-            .list
-                font-size 1.05rem
-                gap 0.6em
-                opacity 0.92
-
-        .divider__number
-            position absolute
-            right 0
-            top 50%
-            transform translateY(-50%)
-            font-family "Fredoka", ui-rounded, sans-serif
-            font-weight 700
-            font-size 22rem
-            line-height 0.8
-            color alpha(cream, 0.05)
-            pointer-events none
-            user-select none
-
-    // ==========================================================================
-    // Projektidee & Ziele (04)
-    // ==========================================================================
-
-    &[data-layout="idea"]
-        .idea
-            display flex
-            flex-direction column
-            gap 1.6em
-            margin-top 0.4em
-
-        .idea__flow
-            display grid
-            grid-template-columns repeat(3, minmax(0, 1fr))
-            gap 0
-            list-style none
-            margin 0
-
-            @media only screen and (max-width 900px)
-                grid-template-columns minmax(0, 1fr)
-                gap 20px
-
-        .idea__step
-            position relative
-            padding 0 44px 0 0
-
-            & + .idea__step::before
-                content "→"
-                position absolute
-                left -22px
-                top 34px
-                font-family "Fredoka", ui-rounded, sans-serif
-                font-size 1.6rem
-                color var(--accent, lime400)
-
-            @media only screen and (max-width 900px)
-                padding 0 0 0 56px
-
-                & + .idea__step::before
-                    left 18px
-                    top -10px
-                    transform rotate(90deg)
-
-        .idea__icon
-            display flex
-            align-items center
-            justify-content center
-            width 52px
-            height 52px
-            border-radius 16px
-            border hairline
-            background alpha(space800, 0.6)
-            color var(--accent, lime400)
-            margin-bottom 14px
-
-        .idea__number
+        i
             display block
-            font-family "Fredoka", ui-rounded, sans-serif
-            font-weight 700
-            font-size fs-xs
-            letter-spacing 0.14em
-            color var(--accent, lime400)
-            opacity 0.8
+            flex 1
+            height 100%
 
-        .idea__step h3
-            margin 0.2em 0 0.4em
-            font-family "Fredoka", ui-rounded, sans-serif
-            font-size fs-lg
+            &:nth-child(1)
+                background lime
 
-        .idea__step p
-            font-size fs-base
-            color muted
-            line-height 1.5
-            opacity 0.95
+            &:nth-child(2)
+                background rgba(186, 232, 98, 0.36)
 
-        .idea__meta
-            display grid
-            grid-template-columns minmax(0, 1fr)
-            gap 0.6em
-            border-top 1px solid alpha(cream, 0.12)
-            padding-top 1.4em
+            &:nth-child(3)
+                background rgba(247, 248, 252, 0.16)
 
-        .idea__audience
-            font-size fs-md
-            font-weight 600
-            color cream
-            opacity 0.9
+    // =========================================================================
+    // Asymmetric Dark / White Split System (Slides 03, 13, 18)
+    // =========================================================================
 
-    // ==========================================================================
-    // Team & Rollen (05)
-    // ==========================================================================
+    .split-layout
+        width 100%
+        height 100%
+        display grid
 
-    &[data-layout="team"]
-        .presentation__stage
-            align-items center
+        &--34
+            grid-template-columns 34% 66%
 
-        .team
+        &--30
+            grid-template-columns 30% 70%
+
+        &--38
+            grid-template-columns 38% 62%
+
+    .split-layout__dark
+        background-color rgba(15, 16, 33, 0.86)
+        color light-ink
+        padding 72px 58px 64px 80px
+        display flex
+        flex-direction column
+        justify-content center
+
+    .split-layout__light
+        background-color rgba(255, 255, 255, 0.89)
+        color ink
+        padding 72px 88px 64px 80px
+        display flex
+        flex-direction column
+        justify-content center
+
+    .split-rail__label
+        font-family font-display
+        font-weight 600
+        font-size 0.78rem
+        letter-spacing 0.18em
+        text-transform uppercase
+        color lime
+        margin-bottom 22px
+
+    .split-rail__headline
+        font-family font-display
+        font-weight 600
+        font-size clamp(1.9rem, 2.7vw, 2.55rem)
+        line-height 1.15
+        letter-spacing -0.02em
+        color light-ink
+        margin 0
+
+    .split-rail__rule
+        width 64px
+        height 2px
+        background lime
+        margin 28px 0 24px
+
+    .split-rail__clues
+        display flex
+        flex-direction column
+        gap 10px
+
+        li
+            font-family font-display
+            font-weight 400
+            font-size 0.98rem
+            color light-body
+            padding-left 18px
             position relative
-            margin-top 0.4em
 
-        .team__count
-            position absolute
-            right 0
-            top 50%
-            transform translateY(-50%)
-            font-family "Fredoka", ui-rounded, sans-serif
-            font-weight 700
-            font-size 20rem
-            line-height 0.8
-            color alpha(cream, 0.045)
-            user-select none
-            pointer-events none
+            &::before
+                content "—"
+                position absolute
+                left 0
+                color lime
 
-        .team__members
-            position relative
-            z-index 1
-            display grid
-            grid-template-columns repeat(2, minmax(0, 1fr))
-            gap 2em
-            list-style none
-            margin 0
+    .split-rail__quote
+        margin-top 36px
+        font-family font-display
+        font-weight 300
+        font-size 1.05rem
+        color light-muted
+        letter-spacing 0.01em
 
-            @media only screen and (max-width 900px)
-                grid-template-columns minmax(0, 1fr)
-                gap 1.4em
+    // =========================================================================
+    // 01 — Title (Dark Editorial Hero + Live 3D Origami Globe)
+    // =========================================================================
 
-        .member
-            display flex
-            gap 22px
-            align-items flex-start
-
-        .member__avatar
-            flex-shrink 0
+    &[data-layout="title"]
+        .hero--title
+            width 100%
+            height 100%
             display flex
             align-items center
             justify-content center
-            width 84px
-            height 84px
 
-        .member__body
-            h3
-                font-family "Fredoka", ui-rounded, sans-serif
-                font-size 1.6rem
-                margin-bottom 0.1em
-
-        .member__role
-            color var(--accent, lime400)
-            font-weight 600
-            font-size fs-md
-            margin-bottom 0.6em
-
-        .member__packages
-            display flex
-            flex-wrap wrap
-            gap 8px
-            list-style none
-            margin 0
-
-            li
-                padding 6px 13px
-                border-radius 999px
-                border 1px solid alpha(cream, 0.2)
-                font-size fs-xs
-                color muted
-                background alpha(space800, 0.5)
-
-    // ==========================================================================
-    // Media (07, 08, 09)
-    // ==========================================================================
-
-    &[data-layout="media"]
-        .presentation__content
-            margin-top 0.2em
-
-        // 07 Startbildschirm — hero + annotation rail
-        .media--hero
+        .hero__inner
+            width 100%
+            max-width 1480px
+            padding 72px 96px
             display grid
-            grid-template-columns minmax(0, 1fr) 340px
-            gap 28px
-            align-items start
+            grid-template-columns minmax(0, 1.3fr) minmax(280px, 0.8fr)
+            align-items center
+            gap clamp(48px, 6vw, 108px)
 
-            @media only screen and (max-width 900px)
-                grid-template-columns minmax(0, 1fr)
-
-        .media__primary
-            .shot--primary img
-                border-radius 22px
-
-        .media__rail
+        .hero__header
             display flex
             flex-direction column
-            gap 20px
+            align-items flex-start
 
-            .shot--secondary img
-                max-height 26vh
-                object-fit cover
-                object-position top
+        .hero__academic
+            font-family font-display
+            font-weight 500
+            font-size 0.76rem
+            text-transform uppercase
+            letter-spacing 0.22em
+            color light-muted
+            margin 0 0 22px
 
-        .callouts
-            list-style none
-            margin 0
-            display flex
-            flex-direction column
-            gap 16px
-
-            li
-                display flex
-                gap 14px
-                align-items flex-start
-
-            &__n
-                flex-shrink 0
-                display flex
-                align-items center
-                justify-content center
-                width 30px
-                height 30px
-                border-radius 50%
-                background var(--accent, lime400)
-                color ink
-                font-family "Fredoka", ui-rounded, sans-serif
-                font-weight 700
-                font-size 0.85rem
-
-            strong
-                font-family "Fredoka", ui-rounded, sans-serif
-                font-size fs-md
-                display block
-                margin-bottom 0.2em
-
-            p
-                font-size fs-sm
-                color muted
-                line-height 1.45
-
-        // 08 Einzelspieler — phases + filmstrip
-        .media--filmstrip
-            display flex
-            flex-direction column
-            gap 1.4em
-
-        .phases
-            display grid
-            grid-template-columns repeat(3, minmax(0, 1fr))
-            gap 0
-            list-style none
+        .hero__name
+            font-family font-display
+            font-weight 800
+            font-size clamp(3.8rem, 6.4vw, 5.8rem)
+            line-height 0.96
+            letter-spacing -0.035em
             margin 0
 
-            @media only screen and (max-width 900px)
-                grid-template-columns minmax(0, 1fr)
-                gap 18px
+        .hero__brand-terra
+            color light-ink
 
-        .phase
+        .hero__brand-guessr
+            color lime
+
+        .hero__tagline
+            font-family font-display
+            font-weight 300
+            font-size clamp(1.5rem, 2.3vw, 2.15rem)
+            line-height 1.24
+            color light-body
+            margin 18px 0 0
+
+        .hero__rule
+            width 88px
+            height 2px
+            background lime
+            margin clamp(1.8rem, 4vh, 2.6rem) 0 clamp(1.2rem, 2.6vh, 1.7rem)
+
+        .hero__byline
+            font-family font-display
+            font-weight 500
+            font-size clamp(1rem, 1.2vw, 1.18rem)
+            color light-ink
+            letter-spacing 0.03em
+            margin 0
+
+        .hero__planet-stage
+            width clamp(260px, 26vw, 400px)
+            height clamp(260px, 26vw, 400px)
+            justify-self center
             position relative
-            padding 0 36px 0 0
+            pointer-events none
 
-            & + .phase::before
-                content "→"
-                position absolute
-                left -20px
-                top 8px
-                font-family "Fredoka", ui-rounded, sans-serif
-                font-size 1.5rem
-                color var(--accent, lime400)
+        .hero__globe-host,
+        .hero__globe-canvas,
+        .hero__static-earth
+            position absolute
+            inset 0
+            width 100%
+            height 100%
+            display block
 
-            @media only screen and (max-width 900px)
-                padding 0 0 0 34px
+    // =========================================================================
+    // 02 — Agenda (Pure White 4-Column Architectural Index + Dark Bottom Bar)
+    // =========================================================================
 
-                & + .phase::before
-                    left 10px
-                    top -8px
-                    transform rotate(90deg)
+    &[data-layout="agenda"]
+        .agenda__grid
+            margin auto 0
+            display grid
+            grid-template-columns repeat(4, minmax(0, 1fr))
+            gap 44px
 
-        .phase__label
-            display inline-block
-            font-family "Fredoka", ui-rounded, sans-serif
+        .agenda__col
+            border-top 2px solid ink
+            padding-top 22px
+            display flex
+            flex-direction column
+
+        .agenda__num
+            font-family font-display
+            font-weight 300
+            font-size 3rem
+            line-height 1
+            color lime-mid
+            font-variant-numeric tabular-nums
+            margin-bottom 18px
+
+        .agenda__label
+            font-family font-display
             font-weight 700
-            font-size fs-lg
+            font-size 1.42rem
+            color ink
+            margin 0 0 6px
+            letter-spacing -0.015em
+
+        .agenda__speaker
+            font-family font-display
+            font-weight 500
+            font-size 0.84rem
             letter-spacing 0.06em
             text-transform uppercase
-            color var(--accent, lime400)
-            margin-bottom 0.5em
+            color forest
+            margin 0 0 20px
 
-        .phase__steps
-            list-style none
-            margin 0
+        .agenda__topics
+            padding-top 16px
+            border-top 1px solid hair-light
             display flex
             flex-direction column
-            gap 0.6em
+            gap 10px
 
             li
-                font-size fs-sm
-                color muted
-                line-height 1.45
+                font-size 0.94rem
+                font-weight 400
+                color ink-body
+                line-height 1.38
 
-            strong
-                color cream
-                font-weight 600
+    // =========================================================================
+    // 05, 10, 14 — Centered Section / Station Dividers (Dark & Light Themes)
+    // =========================================================================
 
-        .media__strip
-            display grid
-            grid-template-columns repeat(3, minmax(0, 1fr))
-            gap 18px
-
-            .shot img
-                max-height 34vh
-                object-fit cover
-
-            @media only screen and (max-width 900px)
-                grid-template-columns minmax(0, 1fr)
-
-        // 09 Mehrspieler — versus
-        .media--versus
+    &[data-layout="divider"],
+    &[data-layout="divider-light"]
+        .divider
+            width 100%
+            height 100%
+            position relative
+            overflow hidden
             display flex
-            flex-direction column
-            gap 1em
-
-        .versus
-            display grid
-            grid-template-columns minmax(0, 1fr) auto minmax(0, 1fr)
-            gap 22px
-            align-items center
-
-            @media only screen and (max-width 900px)
-                grid-template-columns minmax(0, 1fr)
-
-        .versus__side
-            display flex
-            flex-direction column
-            gap 8px
-
-            .shot img
-                max-height 44vh
-                object-fit cover
-
-        .versus__caption
-            font-size fs-sm
-            color muted
-            line-height 1.4
-
-            strong
-                color cream
-                font-weight 700
-
-        .versus__mark
-            display flex
-            align-items center
-            justify-content center
-            width 64px
-            height 64px
-            border-radius 50%
-            border 1px solid alpha(cream, 0.2)
-            background alpha(space900, 0.6)
-            font-family "Fredoka", ui-rounded, sans-serif
-            font-weight 700
-            font-size 1.3rem
-            color lime300
-            box-shadow shadow-card
-
-            @media only screen and (max-width 900px)
-                width 48px
-                height 48px
-                margin 0 auto
-                font-size 1rem
-
-    // ==========================================================================
-    // Publikums-Challenge (10)
-    // ==========================================================================
-
-    &[data-layout="challenge"]
-        .presentation__stage
             align-items center
             justify-content center
             text-align center
 
-        .presentation__stage-inner
-            align-items center
-
-        .presentation__content
-            max-width 1160px
+        .divider__inner
+            position relative
+            z-index 2
             width 100%
-
-        .challenge
+            max-width 1520px
+            margin 0 auto
+            padding 0 96px 2.5vh
             display flex
             flex-direction column
-            gap 18px
+            align-items center
+            text-align center
 
-        .challenge__pano
-            position relative
+            @media only screen and (max-width 1200px)
+                padding 0 56px 2vh
+
+        .divider__kicker
+            font-family font-display
+            font-weight 600
+            font-size clamp(0.84rem, 1vw, 0.98rem)
+            line-height 1.2
+            letter-spacing 0.26em
+            text-transform uppercase
+            color forest
+            margin 0 0 clamp(2.2rem, 5.2vh, 3.2rem)
+
+        .divider__title
+            font-family font-display
+            font-weight 800
+            font-size clamp(4rem, 7.6vw, 7.4rem)
+            line-height 1.02
+            letter-spacing -0.025em
+            color ink
+            margin 0
+            text-wrap balance
+
+        .divider__subtitle
+            font-family font-display
+            font-weight 400
+            font-size clamp(1.1rem, 1.44vw, 1.4rem)
+            line-height 1.4
+            letter-spacing 0.015em
+            color ink-muted
+            max-width 58ch
+            margin clamp(2.4rem, 5.8vh, 3.6rem) 0 0
+
+    &[data-theme="dark"][data-layout="divider"],
+    &[data-theme="dark"][data-layout="divider-light"]
+        .divider__kicker
+            color lime
+
+        .divider__title
+            color light-ink
+
+        .divider__subtitle
+            color light-body
+
+    // =========================================================================
+    // 03 — Split Idea (Reference Page 11 Numbered Rows on White + Dark Rail)
+    // =========================================================================
+
+    &[data-layout="split-idea"]
+        .num-rows
+            margin-top 44px
+            display flex
+            flex-direction column
+            gap 34px
+
+        .num-row
+            display grid
+            grid-template-columns 72px minmax(0, 1fr)
+            gap 22px
+            align-items baseline
+
+        .num-row__idx
+            font-family font-display
+            font-weight 700
+            font-size 2.35rem
+            line-height 1
+            color lime-mid
+            font-variant-numeric tabular-nums
+
+        .num-row__body
+            font-family font-display
+            font-weight 400
+            font-size clamp(1.06rem, 1.35vw, 1.26rem)
+            line-height 1.46
+            color ink-body
+
+            strong
+                font-weight 700
+                color ink
+
+    // =========================================================================
+    // 04 — Goals + Flat Solid Kano KPI Block (Reference Page 4)
+    // =========================================================================
+
+    &[data-layout="goals"]
+        .goals
+            margin auto 0
+            display grid
+            grid-template-columns minmax(0, 1.65fr) minmax(340px, 0.92fr)
+            gap 64px
+            align-items center
+
+        .goals__list
+            display flex
+            flex-direction column
+            gap 30px
+
+        .goals__row
+            display grid
+            grid-template-columns 64px minmax(0, 1fr)
+            gap 20px
+            align-items baseline
+            padding-top 20px
+            border-top 1px solid hair-light
+
+            &:first-child
+                border-top 2px solid ink
+
+        .goals__idx
+            font-family font-display
+            font-weight 700
+            font-size 1.9rem
+            line-height 1
+            color lime-mid
+            font-variant-numeric tabular-nums
+
+        .goals__copy
+            h2
+                font-family font-display
+                font-weight 700
+                font-size 1.32rem
+                color ink
+                margin 0 0 6px
+                letter-spacing -0.015em
+
+            p
+                font-size 0.98rem
+                font-weight 400
+                color ink-body
+                line-height 1.45
+                margin 0
+
+        .goals__kpi
+            background navy
+            color light-ink
+            padding 36px 36px 32px
+            display flex
+            flex-direction column
+            gap 24px
+
+        .goals__kpi-top
+            display flex
+            align-items center
+            gap 20px
+
+        .goals__kpi-value
+            font-family font-display
+            font-weight 800
+            font-size 4.4rem
+            line-height 0.9
+            letter-spacing -0.04em
+            color lime
+            font-variant-numeric tabular-nums
+
+        .goals__kpi-label
+            display block
+            font-family font-display
+            font-weight 700
+            font-size 1.22rem
+            color light-ink
+
+        .goals__kpi-sub
+            display block
+            margin-top 4px
+            font-family font-display
+            font-weight 400
+            font-size 0.88rem
+            color light-muted
+
+        .kano-bar
+            display flex
+            height 10px
+            width 100%
+            gap 2px
+
+        .kano-bar__seg
+            height 100%
+
+            &.is-base
+                background lime
+            &.is-perf
+                background ocean
+            &.is-delight
+                background amber-dark
+            &.is-indiff
+                background #5c617a
+
+        .kano-legend
+            display flex
+            flex-direction column
+            gap 10px
+
+            li
+                display flex
+                align-items center
+                gap 12px
+                font-family font-display
+                font-size 0.94rem
+                color light-body
+
+        .kano-legend__dot
+            width 9px
+            height 9px
+            flex-shrink 0
+
+            &.is-base
+                background lime
+            &.is-perf
+                background ocean
+            &.is-delight
+                background amber-dark
+            &.is-indiff
+                background #5c617a
+
+        .kano-legend__name
+            flex 1
+
+        .kano-legend__val
+            font-family font-display
+            font-weight 700
+            color light-ink
+            font-variant-numeric tabular-nums
+
+    // =========================================================================
+    // 06 — Team & Roles (Unboxed 4-Column Typographic Grid + Dark Anchor Band)
+    // =========================================================================
+
+    &[data-layout="team"]
+        .team__grid
+            margin auto 0
+            display grid
+            grid-template-columns repeat(4, minmax(0, 1fr))
+            gap 40px
+
+        .team__col
+            border-top 2px solid ink
+            padding-top 22px
+            display flex
+            flex-direction column
+
+        .team__num
+            font-family font-display
+            font-weight 300
+            font-size 2.5rem
+            line-height 1
+            color lime-mid
+            font-variant-numeric tabular-nums
+            margin-bottom 16px
+
+        .team__name
+            font-family font-display
+            font-weight 700
+            font-size 1.55rem
+            color ink
+            margin 0 0 6px
+            letter-spacing -0.02em
+
+        .team__pres
+            font-family font-display
+            font-weight 600
+            font-size 0.92rem
+            color forest
+            margin 0
+
+        .team__rule
+            width 100%
+            height 1px
+            background hair-light
+            margin 18px 0
+
+        .team__proj
+            font-size 0.9rem
+            font-weight 400
+            color ink-body
+            line-height 1.48
+            margin 0
+
+            &.is-pending
+                color ink-muted
+                font-style italic
+
+    // =========================================================================
+    // 07 — Entry & Setup (Dark Large Side-by-Side Uncropped Screenshots)
+    // =========================================================================
+
+    &[data-layout="versus"]
+        .versus__grid
+            margin auto 0
+            display grid
+            grid-template-columns repeat(2, minmax(0, 1fr))
+            gap 40px
+            align-items start
+
+        .versus__col
+            display flex
+            flex-direction column
+
+        .versus__shot
             margin 0
 
             img
                 display block
                 width 100%
-                max-height 52vh
-                object-fit cover
-                border-radius 24px
-                border hairline
-                box-shadow shadow-panel
+                aspect-ratio 2 / 1
+                height auto
+                object-fit contain
+                background navy
+                border 1px solid hair-dark-strong
 
-        .challenge__ask
-            display flex
-            flex-direction column
-            align-items center
-            gap 6px
-            padding 16px 30px
-            border-radius 20px
-            background alpha(space900, 0.6)
-            border 1px solid alpha(cream, 0.16)
-            box-shadow shadow-card
-            text-align center
-
-            .list
-                align-items center
-                gap 0.25em
-
-            .list li
-                padding-left 0
-                font-size fs-base
-                color muted
-
-                &::before
-                    display none
-
-        .challenge__credit
-            margin-top 0.3em
-            font-size fs-2xs
-            opacity 0.5
-
-        .challenge__ping
-            position absolute
-            right 16px
-            top 16px
-            width 18px
-            height 18px
-            border-radius 50%
-            background var(--accent, lime400)
-            box-shadow 0 0 0 0 unquote("rgba(var(--accent-rgb, 192, 246, 107), 0.60)")
-            animation challenge-ping 1.8s ease-out infinite
-
-    @keyframes challenge-ping
-        0%
-            box-shadow 0 0 0 0 unquote("rgba(var(--accent-rgb, 192, 246, 107), 0.55)")
-        70%, 100%
-            box-shadow 0 0 0 16px unquote("rgba(var(--accent-rgb, 192, 246, 107), 0)")
-
-    // ==========================================================================
-    // Technologie-Stack (12)
-    // ==========================================================================
-
-    &[data-layout="stack"]
-        .stack
-            display flex
-            flex-direction column
-            gap 1em
-            margin-top 0.4em
-
-        .stack__diagram
-            display flex
-            flex-direction column
-            gap 10px
-
-        .stack__layer
+        .versus__caption
+            margin-top 20px
+            padding-top 16px
+            border-top 1px solid hair-dark
             display grid
-            grid-template-columns 200px minmax(0, 1fr)
-            gap 24px
-            align-items center
-            padding 13px 22px
-            border-radius 18px
-            border 1px solid alpha(cream, 0.12)
-            border-left 4px solid var(--layer, lime400)
-            background alpha(space900, 0.45)
+            grid-template-columns 44px minmax(0, 1fr)
+            gap 14px
+            align-items baseline
 
-            @media only screen and (max-width 900px)
-                grid-template-columns minmax(0, 1fr)
-                gap 10px
-
-        .stack__layer-head
-            h3
-                font-family "Fredoka", ui-rounded, sans-serif
-                font-size fs-md
-                margin-bottom 0.1em
+            h2
+                font-family font-display
+                font-weight 700
+                font-size 1.18rem
+                color light-ink
+                margin 0 0 4px
 
             p
-                font-size fs-2xs
-                color muted
-
-        .stack__body
-            display flex
-            flex-direction column
-            gap 10px
-
-        .stack__items
-            display flex
-            flex-wrap wrap
-            gap 8px
-            align-items center
-
-        .stack__external
-            font-size fs-sm
-            color muted
-            opacity 0.9
-
-        .stack__quality
-            display flex
-            flex-wrap wrap
-            align-items center
-            gap 8px
-            font-size fs-sm
-            color muted
-
-    // ==========================================================================
-    // Architektur & Ablauf (13)
-    // ==========================================================================
-
-    &[data-layout="flow"]
-        .flow
-            display flex
-            flex-direction column
-            gap 1em
-            margin-top 0.2em
-
-        .flow-diagram
-            border-radius 20px
-            border hairline
-            background alpha(space900, 0.4)
-            padding 10px
-            box-shadow shadow-card
-            max-width 980px
-
-        .flow__legend
-            list-style none
-            margin 0
-            display grid
-            grid-template-columns repeat(3, minmax(0, 1fr))
-            gap 6px 24px
-
-            @media only screen and (max-width 1100px)
-                grid-template-columns repeat(2, minmax(0, 1fr))
-
-            @media only screen and (max-width 640px)
-                grid-template-columns minmax(0, 1fr)
-
-        .flow__legend-item
-            display grid
-            grid-template-columns 30px minmax(0, 1fr)
-            gap 12px
-            align-items start
-            padding 4px 0
-            border-bottom 1px solid alpha(cream, 0.1)
-
-        .flow__legend-n
-            display flex
-            align-items center
-            justify-content center
-            width 28px
-            height 28px
-            border-radius 50%
-            background unquote("rgba(var(--accent-rgb, 192, 246, 107), 0.16)")
-            border 1px solid unquote("rgba(var(--accent-rgb, 192, 246, 107), 0.40)")
-            color var(--accent, lime400)
-            font-family "Fredoka", ui-rounded, sans-serif
-            font-weight 700
-            font-size 0.8rem
-
-        .flow__legend-item strong
-            font-size fs-xs
-            display block
-            margin-bottom 0.12em
-
-        .flow__legend-item p
-            font-size fs-2xs
-            color muted
-            line-height 1.3
-
-        .flow__notes
-            display flex
-            flex-direction column
-            gap 0.5em
-
-            p
+                font-size 0.92rem
+                font-weight 400
+                color light-muted
+                line-height 1.4
                 margin 0
 
-    // ==========================================================================
-    // Aufwandsschätzung (14)
-    // ==========================================================================
-
-    &[data-layout="table-hours"]
-        .presentation__stage
-            align-items center
-
-        .presentation__content
-            max-width 760px
-
-        .hours
-            display flex
-            flex-direction column
-            gap 1.6em
-            margin-top 0.4em
-
-        .hours__rows
-            list-style none
-            margin 0
-            display flex
-            flex-direction column
-            gap 12px
-
-        .hours__row
-            display flex
-            align-items center
-            gap 16px
-            padding 15px 22px
-            border-radius 14px
-            border 1px solid alpha(cream, 0.12)
-            background alpha(space900, 0.4)
-
-        .hours__dot
-            flex-shrink 0
-            width 11px
-            height 11px
-            border-radius 50%
-            background alpha(muted, 0.35)
-            border 1.5px dashed alpha(cream, 0.4)
-
-        .hours__label
-            font-size fs-base
-            font-weight 600
-
-    // ==========================================================================
-    // Herausforderungen & Lösungen (15)
-    // ==========================================================================
-
-    &[data-layout="table-challenges"]
-        .challenges
-            list-style none
-            margin 0
-            display flex
-            flex-direction column
-            gap 10px
-            margin-top 0.3em
-
-        .challenges__row
-            display grid
-            grid-template-columns minmax(0, 1fr) auto minmax(0, 1.4fr) auto
-            gap 20px
-            align-items center
-            padding 13px 22px
-            border-radius 18px
-            border 1px solid alpha(cream, 0.12)
-            background alpha(space900, 0.42)
-
-            @media only screen and (max-width 900px)
-                grid-template-columns minmax(0, 1fr)
-                gap 12px
-                align-items start
-
-        .challenges__problem
-            p
-                font-weight 600
-                font-family "Fredoka", ui-rounded, sans-serif
-                font-size fs-md
-                line-height 1.25
-
-        .challenges__tag
-            display inline-block
-            margin-bottom 0.3em
-            font-size fs-2xs
+        .versus__step
+            font-family font-display
             font-weight 700
-            letter-spacing 0.1em
-            text-transform uppercase
-            color alpha(cream, 0.45)
+            font-size 1.25rem
+            color lime
+            font-variant-numeric tabular-nums
 
-        .challenges__arrow
-            font-family "Fredoka", ui-rounded, sans-serif
-            font-size 1.7rem
-            color var(--accent, lime400)
+    // =========================================================================
+    // 08 — Singleplayer Product Mosaic (Light Asymmetric Spread, Ref Page 24)
+    // =========================================================================
 
-            @media only screen and (max-width 900px)
-                transform rotate(90deg)
+    &[data-layout="product-mosaic"]
+        .mosaic
+            flex 1
+            min-height 0
+            display grid
+            grid-template-columns minmax(0, 1.54fr) minmax(0, 1fr)
+            gap 36px
+            align-items center
 
-        .challenges__solution
+        .mosaic__main
+            margin 0
+            display flex
+            flex-direction column
+
+            img
+                display block
+                width 100%
+                aspect-ratio 2 / 1
+                max-height 56vh
+                object-fit contain
+                background navy
+                border 1px solid hair-light-strong
+
+        .mosaic__main-cap
+            margin-top 18px
+            padding-top 14px
+            border-top 2px solid ink
+            display grid
+            grid-template-columns 42px minmax(0, 1fr)
+            gap 12px
+            align-items baseline
+
+            strong
+                display block
+                font-family font-display
+                font-weight 700
+                font-size 1.14rem
+                color ink
+                margin-bottom 3px
+
             p
-                font-size fs-sm
-                color muted
-                line-height 1.4
+                font-size 0.88rem
+                color ink-muted
+                line-height 1.38
+                margin 0
 
-        .challenges__source
+        .mosaic__stack
+            display flex
+            flex-direction column
+            gap 22px
+
+        .mosaic__sub
+            margin 0
+
+            img
+                display block
+                width 100%
+                aspect-ratio 2 / 1
+                max-height 28vh
+                object-fit contain
+                background navy
+                border 1px solid hair-light-strong
+
+            figcaption
+                margin-top 9px
+                display flex
+                align-items baseline
+                gap 10px
+                font-family font-display
+                font-weight 600
+                font-size 0.9rem
+                color ink
+
+        .mosaic__step
+            font-family font-display
+            font-weight 700
+            font-size 1rem
+            color lime-mid
+            font-variant-numeric tabular-nums
+
+    // =========================================================================
+    // 09 — Multiplayer & Ecosystem (Dark Split + Slanted Lime Rule, Ref Page 12)
+    // =========================================================================
+
+    &[data-layout="showcase"]
+        .showcase
+            margin auto 0
+            display grid
+            grid-template-columns minmax(0, 1.62fr) 36px minmax(300px, 0.92fr)
+            gap 24px
+            align-items center
+
+        .showcase__primary
+            margin 0
+
+            img
+                display block
+                width 100%
+                aspect-ratio 2 / 1
+                height auto
+                object-fit contain
+                background navy
+                border 1px solid hair-dark-strong
+
+            figcaption
+                margin-top 14px
+                font-family font-display
+                font-weight 400
+                font-size 0.9rem
+                color light-muted
+
+        .showcase__points
+            display flex
+            flex-direction column
+            gap 28px
+
+        .showcase__point
+            h2
+                font-family font-display
+                font-weight 700
+                font-size 1.18rem
+                color light-ink
+                margin 4px 0 0
+
+            p
+                font-size 0.9rem
+                font-weight 400
+                color light-body
+                line-height 1.44
+                margin 0
+
+        .showcase__tag
+            font-family font-mono
+            font-size 0.72rem
+            font-weight 500
+            color lime
+            letter-spacing 0.04em
+
+    // =========================================================================
+    // 11 — Architecture & Stack (Dark Minimalist Layered Diagram, Zero Pills)
+    // =========================================================================
+
+    &[data-layout="architecture"]
+        .arch
+            margin auto 0
+            display grid
+            grid-template-columns minmax(0, 1.68fr) minmax(300px, 0.92fr)
+            gap 56px
+            align-items start
+
+        .arch__tiers
+            display flex
+            flex-direction column
+
+        .arch__tier
+            border 1px solid hair-dark
+            border-left 3px solid lime
+            padding 22px 28px
+            display grid
+            grid-template-columns 52px minmax(0, 1fr)
+            gap 20px
+            align-items baseline
+
+        .arch__num
+            font-family font-display
+            font-weight 300
+            font-size 1.85rem
+            line-height 1
+            color lime
+            font-variant-numeric tabular-nums
+
+        .arch__info
+            h2
+                font-family font-display
+                font-weight 700
+                font-size 1.28rem
+                color light-ink
+                margin 0 0 4px
+
+        .arch__role
+            font-size 0.9rem
+            color light-body
+            margin 0 0 10px
+            line-height 1.38
+
+        .arch__stack
+            font-family font-mono
+            font-size 0.74rem
+            font-weight 400
+            color lime
+            margin 0
+            letter-spacing 0.01em
+
+        .arch__arrow
+            height 24px
+            margin-left 40px
+            display flex
+            align-items center
+
+            span
+                display block
+                width 1.5px
+                height 100%
+                background hair-dark-strong
+                position relative
+
+                &::after
+                    content ""
+                    position absolute
+                    left -3px
+                    bottom -1px
+                    width 6px
+                    height 6px
+                    border-right 1.5px solid lime
+                    border-bottom 1.5px solid lime
+                    transform rotate(45deg)
+
+        .arch__side
+            padding-left 36px
+            border-left 1px solid hair-dark
+            display flex
+            flex-direction column
+            gap 28px
+
+        .arch__block
+            h3
+                font-family font-display
+                font-weight 700
+                font-size 1.02rem
+                color light-ink
+                margin 0
+
+            p
+                font-size 0.88rem
+                color light-body
+                line-height 1.46
+                margin 0
+
+            ul
+                display flex
+                flex-direction column
+                gap 8px
+
+                li
+                    font-size 0.88rem
+                    color light-body
+                    padding-left 16px
+                    position relative
+
+                    &::before
+                        content "—"
+                        position absolute
+                        left 0
+                        color lime
+
+        .arch__block--accent
+            h3
+                color lime
+
+            p
+                color light-ink
+
+    // =========================================================================
+    // 12 — Sequence Diagram (Crisp White High-Contrast Vector Diagram)
+    // =========================================================================
+
+    &[data-layout="sequence"]
+        .sequence
+            flex 1
+            min-height 0
+            display flex
+            flex-direction column
+            justify-content space-between
+            gap 24px
+
+        .sequence__svg
+            width 100%
+            max-height 58vh
             display block
-            margin-top 0.35em
-            font-size fs-2xs
-            opacity 0.42
 
-        .challenges__status
-            justify-self end
+        .sequence__facts
+            display grid
+            grid-template-columns repeat(2, minmax(0, 1fr))
+            gap 44px
 
-    // ==========================================================================
-    // Gewonnene Erkenntnisse (16)
-    // ==========================================================================
+        .sequence__fact
+            padding-top 16px
+            border-top 2px solid ink
+
+            strong
+                display block
+                font-family font-display
+                font-weight 700
+                font-size 0.96rem
+                color forest
+                margin-bottom 4px
+
+            p
+                font-size 0.92rem
+                color ink-body
+                line-height 1.4
+                margin 0
+
+    // =========================================================================
+    // 13 — Challenges & Solutions (Split 30/70 Unboxed Rows, Ref Pages 11 & 15)
+    // =========================================================================
+
+    &[data-layout="challenges"]
+        .challenge-rows
+            margin-top 40px
+            display flex
+            flex-direction column
+            gap 32px
+
+        .challenge-row
+            display grid
+            grid-template-columns 68px minmax(0, 1fr)
+            gap 20px
+            align-items baseline
+            padding-top 22px
+            border-top 1px solid hair-light
+
+            &:first-child
+                border-top none
+                padding-top 0
+
+        .challenge-row__idx
+            font-family font-display
+            font-weight 700
+            font-size 2.2rem
+            line-height 1
+            color lime-mid
+            font-variant-numeric tabular-nums
+
+        .challenge-row__body
+            h2
+                font-family font-display
+                font-weight 700
+                font-size 1.24rem
+                color ink
+                margin 0 0 10px
+
+            p
+                font-size 0.92rem
+                line-height 1.42
+                margin 0 0 6px
+                display grid
+                grid-template-columns 84px minmax(0, 1fr)
+                gap 12px
+
+                &:last-child
+                    margin-bottom 0
+
+                span
+                    font-family font-display
+                    font-weight 700
+                    font-size 0.74rem
+                    letter-spacing 0.1em
+                    text-transform uppercase
+                    padding-top 3px
+
+        .challenge-row__prob
+            color ink-muted
+
+            span
+                color amber-light
+
+        .challenge-row__sol
+            color ink
+            font-weight 500
+
+            span
+                color forest
+
+    // =========================================================================
+    // 15 — Plan / Ist Hours (Borderless Swiss Table + Risks + Dark Anchor Band)
+    // =========================================================================
+
+    &[data-layout="hours"]
+        .hours
+            margin auto 0
+            display grid
+            grid-template-columns minmax(0, 1.65fr) minmax(300px, 0.9fr)
+            gap 56px
+            align-items start
+
+        .hours__table
+            width 100%
+            border-collapse collapse
+
+            th, td
+                text-align left
+                padding 15px 10px
+                border-bottom 1px solid hair-light
+
+            thead th
+                font-family font-display
+                font-weight 700
+                font-size 0.78rem
+                letter-spacing 0.1em
+                text-transform uppercase
+                color ink-muted
+                border-bottom 2px solid ink
+                padding-bottom 12px
+
+                &:nth-child(3),
+                &:nth-child(4),
+                &:nth-child(5)
+                    text-align right
+                    width 96px
+
+            tbody td
+                font-size 0.96rem
+                color ink
+
+            tfoot tr.hours__total td
+                border-top 2px solid ink
+                border-bottom none
+                padding-top 16px
+                font-weight 700
+                background mist
+
+        .hours__code
+            font-family font-mono
+            font-size 0.78rem
+            font-weight 600
+            color forest
+            width 78px
+
+        .hours__pkg
+            font-weight 500
+
+        .hours__val
+            text-align right !important
+            font-family font-mono
+            font-size 0.88rem !important
+            color ink-muted !important
+            font-variant-numeric tabular-nums
+
+        .hours__risks
+            border-left 1px solid hair-light
+            padding-left 36px
+
+        .hours__risks-title
+            font-family font-display
+            font-weight 700
+            font-size 0.84rem
+            letter-spacing 0.14em
+            text-transform uppercase
+            color ink
+            margin 0 0 22px
+
+        .hours__risk-list
+            display flex
+            flex-direction column
+            gap 22px
+
+        .hours__risk
+            display grid
+            grid-template-columns 36px minmax(0, 1fr)
+            gap 12px
+            align-items baseline
+
+            h3
+                font-family font-display
+                font-weight 700
+                font-size 1.02rem
+                color ink
+                margin 0 0 3px
+
+            p
+                font-size 0.88rem
+                color ink-muted
+                line-height 1.4
+                margin 0
+
+        .hours__risk-idx
+            font-family font-mono
+            font-weight 600
+            font-size 0.84rem
+            color amber-light
+
+    // =========================================================================
+    // 16 — Learnings & Reflection (Dark Open Canvas + Slanted Lime Dividers, Ref Page 28)
+    // =========================================================================
 
     &[data-layout="learnings"]
-        .presentation__stage
+        .learnings__cols
+            margin auto 0
+            display grid
+            grid-template-columns minmax(0, 1fr) 36px minmax(0, 1fr) 36px minmax(0, 1fr)
+            gap 24px
             align-items center
 
-        .presentation__content
-            margin-top 0.6em
+        .learnings__col
+            padding 16px 8px
 
-        .learnings
-            list-style none
-            margin 0
+            h2
+                font-family font-display
+                font-weight 700
+                font-size 1.45rem
+                line-height 1.2
+                color light-ink
+                margin 10px 0 0
+                letter-spacing -0.015em
+
+            p
+                font-size 0.98rem
+                font-weight 400
+                color light-body
+                line-height 1.56
+                margin 0
+
+        .learnings__tag
+            font-family font-mono
+            font-size 0.78rem
+            font-weight 500
+            color lime
+            letter-spacing 0.03em
+
+    // =========================================================================
+    // 17 — Requirements, Tests & CI/CD (Crisp White Minimalist Charts, Ref Page 24)
+    // =========================================================================
+
+    &[data-layout="quality"]
+        .quality
+            margin auto 0
             display grid
-            grid-template-columns repeat(3, minmax(0, 1fr))
-            gap 2.2em
+            grid-template-columns minmax(0, 0.88fr) 1px minmax(0, 1.18fr)
+            gap 48px
+            align-items start
 
-            @media only screen and (max-width 900px)
-                grid-template-columns minmax(0, 1fr)
-                gap 1.6em
+        .quality__divider
+            width 1px
+            height 100%
+            min-height 380px
+            background hair-light
 
-        .learnings__item
-            position relative
-            padding-top 0.4em
+        .quality__col
+            display flex
+            flex-direction column
 
-        .learnings__number
-            display block
-            font-family "Fredoka", ui-rounded, sans-serif
+        .quality__heading
+            font-family font-display
             font-weight 700
-            font-size 3.4rem
-            line-height 1
-            color unquote("rgba(var(--accent-rgb, 192, 246, 107), 0.28)")
+            font-size 0.82rem
+            letter-spacing 0.16em
+            text-transform uppercase
+            color ink-muted
+            margin 0 0 22px
 
-        .learnings__item h3
-            font-family "Fredoka", ui-rounded, sans-serif
-            font-size 1.45rem
-            line-height 1.15
-            margin 0.4em 0 0.5em
+        .quality__kpis
+            display grid
+            grid-template-columns repeat(2, minmax(0, 1fr))
+            gap 28px
+            margin-bottom 22px
 
-        .learnings__item p
-            font-size 0.92rem
-            color muted
-            line-height 1.55
+        .quality__kpi
+            border-top 2px solid ink
+            padding-top 16px
 
-    // ==========================================================================
-    // Anforderungsaudit (18)
-    // ==========================================================================
+            strong
+                display block
+                font-family font-display
+                font-weight 800
+                font-size clamp(2.8rem, 4vw, 3.6rem)
+                line-height 1
+                color forest
+                font-variant-numeric tabular-nums
 
-    &[data-layout="audit"]
-        .audit
-            display flex
-            flex-direction column
-            gap 0.85em
-            margin-top 0.15em
+                span:last-child
+                    font-weight 400
+                    font-size 1.5rem
+                    color ink-subtle
 
-        .audit__summary
-            display flex
-            flex-direction column
-            gap 12px
+            em
+                display block
+                margin-top 8px
+                font-style normal
+                font-family font-display
+                font-weight 500
+                font-size 0.92rem
+                color ink-body
 
         .audit__bar
             display flex
-            height 26px
-            border-radius 999px
-            overflow hidden
-            border hairline
-            background alpha(space900, 0.5)
+            height 10px
+            width 100%
+            gap 2px
+            background mist
+            margin-bottom 24px
 
         .audit__seg
             width var(--w)
+            height 100%
 
             &.is-pass
-                background lime500
-                color ink
-
+                background forest
             &.is-partial
-                background amber
+                background amber-light
 
-            &.is-fail
-                background rose
+        .quality__prog
+            font-family font-display
+            font-weight 600
+            font-size 0.98rem
+            color ink
+            margin 0 0 10px
 
-        .audit__stats
-            display grid
-            grid-template-columns repeat(4, minmax(0, 1fr))
-            gap 12px
+        .quality__note
+            font-size 0.88rem
+            color ink-muted
+            line-height 1.48
+            margin 0
+            padding-left 14px
+            border-left 2px solid amber-light
 
-            @media only screen and (max-width 640px)
-                grid-template-columns repeat(2, minmax(0, 1fr))
+        .quality__test-head
+            display flex
+            align-items baseline
+            justify-content space-between
+            gap 16px
+            margin-bottom 22px
 
-        .audit__stat
+            .quality__heading
+                margin 0
+
+        .quality__test-total
+            font-family font-display
+            font-size 0.98rem
+            color ink-muted
+
+            strong
+                font-weight 800
+                font-size 1.35rem
+                color ink
+                font-variant-numeric tabular-nums
+
+        // Minimalist Horizontal Bar Chart (Ref Page 24)
+        .qbar__list
             display flex
             flex-direction column
-            gap 2px
-            padding 9px 16px
-            border-radius 14px
-            border 1px solid alpha(cream, 0.12)
-            background alpha(space900, 0.42)
+            gap 18px
+            margin-bottom 28px
 
-            b
-                font-family "Fredoka", ui-rounded, sans-serif
+        .qbar__row
+            display flex
+            flex-direction column
+            gap 6px
+
+        .qbar__meta
+            display flex
+            justify-content space-between
+            align-items baseline
+            gap 12px
+
+            strong
+                font-family font-display
                 font-weight 700
-                font-size 1.7rem
-                line-height 1
+                font-size 0.94rem
+                color ink
+
+            span
+                font-size 0.8rem
+                color ink-muted
+
+        .qbar__track
+            display flex
+            align-items center
+            gap 12px
+            height 22px
+
+        .qbar__fill
+            display block
+            height 100%
+            width calc(var(--w) * 0.84)
+            min-width 18px
+            background forest
+
+        .qbar__count
+            font-style normal
+            font-family font-display
+            font-weight 700
+            font-size 0.94rem
+            color ink
+            font-variant-numeric tabular-nums
+
+        .quality__ci
+            padding-top 18px
+            border-top 1px solid hair-light
+
+        .quality__ci-label
+            display block
+            font-family font-display
+            font-weight 700
+            font-size 0.74rem
+            letter-spacing 0.14em
+            text-transform uppercase
+            color forest
+            margin-bottom 10px
+
+        .quality__ci-steps
+            display flex
+            flex-wrap wrap
+            align-items center
+            gap 8px 18px
+
+            li
+                font-family font-mono
+                font-size 0.78rem
+                font-weight 500
+                color ink
+                position relative
+
+                & + li::before
+                    content "→"
+                    position absolute
+                    left -13px
+                    color ink-subtle
+
+        .quality__caveat
+            margin 18px 0 0
+            font-size 0.78rem
+            color ink-muted
+
+    // =========================================================================
+    // 18 — Conclusion Statement (Split 38% Dark / 62% Crisp White)
+    // =========================================================================
+
+    &[data-layout="statement"]
+        .statement__left
+            padding 72px 64px 72px 88px
+
+        .statement__lines
+            margin 0
+            display flex
+            flex-direction column
+            gap 6px
+            font-family font-display
+            font-weight 800
+            font-size clamp(3rem, 5vw, 4.5rem)
+            line-height 1.02
+            letter-spacing -0.03em
+            color light-ink
+
+            .is-accent
+                color lime
+
+        .statement__right
+            padding 72px 88px 72px 80px
+            gap 40px
+
+        .statement__group
+            border-top 2px solid forest
+            padding-top 20px
+
+            h2
+                font-family font-display
+                font-weight 700
+                font-size 0.84rem
+                letter-spacing 0.16em
+                text-transform uppercase
+                color forest
+                margin 0 0 18px
+
+            ul
+                display flex
+                flex-direction column
+                gap 14px
+
+                li
+                    font-family font-display
+                    font-size 1.04rem
+                    font-weight 400
+                    color ink-body
+                    line-height 1.42
+                    padding-left 20px
+                    position relative
+
+                    &::before
+                        content "—"
+                        position absolute
+                        left 0
+                        color forest
+
+            &.is-open
+                border-top-color amber-light
+
+                h2
+                    color amber-light
+
+                ul li::before
+                    color amber-light
+
+    // =========================================================================
+    // 19 — Live-Demo (Dark Open Launchpad + Slanted Lime Rule)
+    // =========================================================================
+
+    &[data-layout="demo"]
+        .demo
+            margin auto 0
+            display grid
+            grid-template-columns minmax(0, 1.25fr) 36px minmax(320px, 0.95fr)
+            gap 28px
+            align-items center
+
+        .demo__steps
+            display flex
+            flex-direction column
+            border-top 1px solid hair-dark-strong
+
+        .demo__step
+            display grid
+            grid-template-columns 48px minmax(0, 1fr)
+            gap 16px
+            align-items baseline
+            padding 16px 0
+            border-bottom 1px solid hair-dark
+
+            strong
+                display block
+                font-family font-display
+                font-weight 700
+                font-size 1.12rem
+                color light-ink
+                margin-bottom 2px
+
+            p
+                font-size 0.9rem
+                color light-muted
+                line-height 1.38
+                margin 0
+
+        .demo__step-num
+            font-family font-display
+            font-weight 700
+            font-size 1.15rem
+            color lime
+            font-variant-numeric tabular-nums
+
+        .demo__prompt
+            display flex
+            flex-direction column
+            padding-left 12px
+
+        .demo__prompt-label
+            font-family font-display
+            font-weight 600
+            font-size 0.78rem
+            letter-spacing 0.2em
+            text-transform uppercase
+            color lime
+            margin-bottom 14px
+
+        .demo__prompt-q
+            font-family font-display
+            font-weight 800
+            font-size clamp(2.1rem, 3.2vw, 3rem)
+            line-height 1.08
+            letter-spacing -0.025em
+            color light-ink
+            margin 0
+
+        .demo__prompt-hint
+            font-size 0.98rem
+            color light-body
+            line-height 1.48
+            margin 4px 0 22px
+
+        .demo__clues
+            font-family font-mono
+            font-size 0.78rem
+            color lime
+            letter-spacing 0.02em
+            margin 0
+
+    // =========================================================================
+    // 20 — Closing Q&A (Dark Corporate Asymmetric Split, Ref Page 30)
+    // =========================================================================
+
+    &[data-layout="qa"]
+        .qa
+            width 100%
+            height 100%
+            position relative
+            overflow hidden
+            display flex
+            align-items center
+
+        .qa__inner
+            position relative
+            z-index 2
+            width 100%
+            max-width 1480px
+            margin 0 auto
+            padding 0 112px
+            display grid
+            grid-template-columns minmax(0, 1.1fr) 48px minmax(0, 0.9fr)
+            gap 36px
+            align-items center
+
+        .qa__thanks
+            font-family font-display
+            font-weight 800
+            font-size clamp(3.4rem, 6vw, 5.4rem)
+            line-height 1
+            letter-spacing -0.035em
+            color light-ink
+            margin 0
+
+        .qa__question
+            font-family font-display
+            font-weight 700
+            font-size clamp(2.6rem, 4.6vw, 4.1rem)
+            line-height 1.06
+            letter-spacing -0.025em
+            color lime
+            margin 12px 0 0
+
+        .qa__slant
+            min-height 260px
+
+        .qa__right
+            display flex
+            flex-direction column
+            gap 10px
+
+        .qa__brand
+            font-family font-display
+            font-weight 800
+            font-size 1.9rem
+            letter-spacing -0.02em
+            margin-bottom 8px
+
+            span
+                color light-ink
 
             em
                 font-style normal
-                font-size 0.78rem
-                color muted
+                color lime
 
-            &.is-pass b
-                color lime300
+        .qa__byline
+            font-family font-display
+            font-weight 500
+            font-size 1.15rem
+            color light-ink
+            margin 0
 
-            &.is-partial b
-                color amber
+        .qa__academic
+            font-family font-display
+            font-weight 400
+            font-size 0.9rem
+            letter-spacing 0.1em
+            text-transform uppercase
+            color light-muted
+            margin 0
 
-            &.is-fail b
-                color #ff9da3
+        .qa__hint
+            margin 18px 0 0
+            font-family font-mono
+            font-size 0.72rem
+            color light-subtle
 
-            &.is-mandatory b
-                color cream
+    // =========================================================================
+    // Appendix A1 — Clean Borderless 2-Column Requirements Matrix
+    // =========================================================================
 
-        .audit__cols
+    &[data-layout="appendix-audit"]
+        .audit__tables
+            margin auto 0
             display grid
             grid-template-columns repeat(2, minmax(0, 1fr))
-            gap 18px
-
-            @media only screen and (max-width 900px)
-                grid-template-columns minmax(0, 1fr)
-
-        .audit__table-wrap
-            overflow-x auto
-            border-radius 16px
-            border hairline
-            background alpha(space900, 0.4)
+            gap 40px
+            align-items start
 
         .audit__table
             width 100%
             border-collapse collapse
-            font-size fs-sm
 
             th, td
-                padding 7px 12px
-                border-bottom 1px solid alpha(cream, 0.1)
                 text-align left
-                vertical-align top
-                line-height 1.25
+                padding 7.5px 8px
+                border-bottom 1px solid hair-light
+                vertical-align middle
 
-            th
-                color muted
-                font-family "Fredoka", ui-rounded, sans-serif
-                font-weight 600
-                font-size fs-2xs
-                text-transform uppercase
-                letter-spacing 0.05em
-
-            tr:last-child td
-                border-bottom none
-
-            tr.is-critical td
-                background alpha(rose, 0.08)
-
-            .audit__nr
-                font-family "Fredoka", ui-rounded, sans-serif
+            thead th
+                font-family font-display
                 font-weight 700
-                color var(--accent, lime400)
-                white-space nowrap
+                font-size 0.68rem
+                letter-spacing 0.1em
+                text-transform uppercase
+                color ink-muted
+                border-bottom 2px solid ink
 
-        .audit__critical-tag
-            display inline-block
-            margin-left 8px
-            padding 2px 8px
-            border-radius 999px
-            background alpha(rose, 0.18)
-            border 1px solid alpha(rose, 0.5)
-            color #ff9da3
-            font-size fs-2xs
-            font-weight 700
-            letter-spacing 0.06em
-            text-transform uppercase
+                &:last-child
+                    text-align right
 
-        .audit__method
-            display flex
-            flex-direction column
-            gap 8px
-
-            h4
-                font-family "Fredoka", ui-rounded, sans-serif
-                font-size fs-sm
-                color lime300
-                margin 0
-
-        .audit__method-chips
-            list-style none
-            margin 0
-            display flex
-            flex-wrap wrap
-            gap 10px
-
-            li
-                padding 7px 16px
-                border-radius 999px
-                border hairline
-                background alpha(space800, 0.5)
-                font-size fs-2xs
-                color muted
-
-    // ==========================================================================
-    // Testing (19)
-    // ==========================================================================
-
-    &[data-layout="testing"]
-        .testing
-            display flex
-            flex-direction column
-            gap 1.1em
-            margin-top 0.3em
-
-        .tiers
-            list-style none
-            margin 0
-            display grid
-            grid-template-columns repeat(3, minmax(0, 1fr))
-            gap 18px
-
-            @media only screen and (max-width 900px)
-                grid-template-columns minmax(0, 1fr)
-
-        .tiers__tier
-            padding 16px 20px
-            border-radius 18px
-            border 1px solid alpha(cream, 0.12)
-            background alpha(space900, 0.45)
-            border-top 4px solid var(--accent, lime400)
-
-        .tiers__head
-            display flex
-            flex-direction column
-            align-items flex-start
-            gap 3px
-
-            h3
-                font-family "Fredoka", ui-rounded, sans-serif
-                font-size fs-md
-
-        .tiers__tool
-            font-size fs-xs
-            color muted
-
-        .tiers__result
-            margin 0.3em 0 0.25em
-            font-family "Fredoka", ui-rounded, sans-serif
-            font-weight 700
-            font-size 1.9rem
-            color lime300
-            line-height 1
-
-        .tiers__note
-            font-size fs-sm
-            color muted
-            line-height 1.4
-
-        .testing__ci
-            h4
-                font-family "Fredoka", ui-rounded, sans-serif
-                font-size fs-sm
-                color lime300
-                margin-bottom 0.5em
-
-        .testing__ci-chips
-            list-style none
-            margin 0
-            display flex
-            flex-wrap wrap
-            gap 10px
-
-            li
-                padding 8px 16px
-                border-radius 999px
-                border hairline
-                background alpha(space800, 0.5)
-                font-size fs-2xs
-                color muted
-
-        .testing__caveats
-            display flex
-            flex-direction column
-            gap 0.35em
-            padding 11px 16px
-            border-radius 16px
-            border-left 3px solid var(--accent, lime400)
-            background alpha(space900, 0.5)
-
-            p
-                margin 0
-                font-size fs-sm
+            tbody td
+                font-size 0.76rem
+                color ink
                 line-height 1.3
-                opacity 0.9
 
-    // ==========================================================================
-    // Live-Demo (20)
-    // ==========================================================================
+                &:last-child
+                    text-align right
 
-    &[data-layout="demo"]
-        .presentation__stage
-            align-items center
-            justify-content center
-            text-align center
+        .audit__nr
+            font-family font-mono
+            font-size 0.72rem !important
+            color ink-subtle !important
+            width 32px
 
-        .presentation__stage-inner
-            align-items center
+        .audit__type
+            font-family font-mono
+            font-size 0.64rem !important
+            color ink-muted !important
+            white-space nowrap
 
-        .presentation__content
-            max-width 860px
-
-        .demo
-            display flex
-            flex-direction column
-            align-items center
-            gap 1.6em
-
-        .demo__live
-            display inline-flex
-            align-items center
-            gap 14px
-            padding 16px 34px
-            border-radius 999px
-            border 1px solid unquote("rgba(var(--accent-rgb, 192, 246, 107), 0.50)")
-            background alpha(space900, 0.6)
-            font-family "Fredoka", ui-rounded, sans-serif
-            font-weight 700
-            font-size 2.2rem
-            letter-spacing 0.12em
-            color lime300
-            box-shadow shadow-panel
-
-        .demo__dot
-            width 16px
-            height 16px
-            border-radius 50%
-            background lime400
-            animation demo-blink 1.4s ease-in-out infinite
-
-        .demo__steps
-            list-style none
-            margin 0
-            display flex
-            gap 12px
-            flex-wrap wrap
-            justify-content center
-
-            li
-                display flex
-                align-items center
-                gap 10px
-                padding 12px 20px
-                border-radius 999px
-                border hairline
-                background alpha(space800, 0.5)
-                font-size 0.9rem
-                font-weight 600
-
-                span
-                    color var(--accent, lime400)
-                    font-family "Fredoka", ui-rounded, sans-serif
-                    font-weight 700
-
-        .demo__notes
-            display flex
-            flex-direction column
-            gap 10px
-            text-align left
-            width 100%
-
-    @keyframes demo-blink
-        0%, 100%
-            opacity 0.35
-        50%
-            opacity 1
-
-    // ==========================================================================
-    // Abschluss (21)
-    // ==========================================================================
-
-    &[data-layout="conclusion"]
-        .presentation__stage
-            align-items center
-            justify-content center
-            text-align center
-
-        .presentation__stage-inner
-            align-items center
-
-        .presentation__eyebrow,
-        .presentation__title,
-        .presentation__subtitle
-            display none
-
-        .presentation__content
-            max-width 1000px
-
-        .hero--closing
-            display flex
-            flex-direction column
-            align-items center
-            gap 0.5em
-
-        .hero__eyebrow
-            font-family "Fredoka", ui-rounded, sans-serif
+        .audit__status
+            font-family font-mono
+            font-size 0.64rem !important
             font-weight 600
-            font-size 0.9rem
-            letter-spacing 0.22em
             text-transform uppercase
-            color muted
+            letter-spacing 0.04em
+            white-space nowrap
 
-        .hero__earth
-            margin 0.1em 0
-            filter drop-shadow(0 20px 44px alpha(lime400, 0.12))
+            &.is-umgesetzt
+                color forest
 
-        .hero__lines
-            display flex
-            flex-wrap wrap
-            justify-content center
-            gap 0.6em
-            font-family "Fredoka", ui-rounded, sans-serif
-            font-weight 700
-            font-size clamp(1.9rem, 4.4vw, 3.2rem)
-            line-height 1.05
+            &.is-konfiguriert
+                color amber-light
 
-            span
-                color lime300
-
-        .hero__subline
-            font-size fs-md
-            color muted
-            max-width 60ch
-            line-height 1.4
-
-        .hero__columns
-            display grid
-            grid-template-columns repeat(2, minmax(0, 1fr))
-            gap 2em
-            width 100%
-            text-align left
-            margin 0.6em 0 0.8em
-
-            h3
-                font-family "Fredoka", ui-rounded, sans-serif
-                font-size fs-sm
-                color lime300
-                margin-bottom 0.4em
-
-            .list
-                font-size fs-sm
-                gap 0.4em
-
-            @media only screen and (max-width 640px)
-                grid-template-columns minmax(0, 1fr)
-
-        .hero__closing
-            display flex
-            gap 0.7em
-            font-family "Fredoka", ui-rounded, sans-serif
-            font-weight 700
-            font-size clamp(2.2rem, 6vw, 4.4rem)
-            color cream
-
-            span + span
-                color lime300
-
-    // ==========================================================================
-    // Mode-specific chrome (tour vs. station)
-    // ==========================================================================
-
-    &[data-flow="station"]
-        .presentation__close
-            display flex
-
-        .presentation__stations
-            display none
-
-        .presentation__hint--tour
-            display none
-
-    &[data-flow="tour"]
-        .presentation__close
-            display none
-
-        .presentation__section-nav
-            display none
-
-        .presentation__hint--station
-            display none
+// =============================================================================
+// 3D World Walk-Up Station Prompt (Minimal Matte)
+// =============================================================================
 
 .station-prompt
     position fixed
     left 50%
-    bottom 11%
-    transform translate(-50%, 10px)
+    bottom 9%
+    transform translate(-50%, 8px)
     z-index 15
     display flex
     align-items center
     gap 10px
-    padding 10px 18px
-    border-radius 999px
-    border 1px solid alpha(cream, 0.3)
-    background alpha(space900, 0.72)
-    color cream
-    font-family "Nunito", sans-serif
+    padding 9px 18px
+    border 1px solid hair-dark-strong
+    background rgba(15, 16, 33, 0.90)
+    color light-ink
+    font-family font-display
     font-weight 600
-    font-size 0.95rem
+    font-size 0.85rem
+    letter-spacing 0.02em
     pointer-events none
     opacity 0
-    transition opacity 0.25s ease, transform 0.25s ease
-    --accent lime400
+    transition opacity 0.22s ease, transform 0.22s ease
 
     &.is-visible
         opacity 1
@@ -1857,38 +1988,63 @@ fs-lg = clamp(1.42rem, 1.25rem + 0.75vw, 1.7rem)     // emphatic step headings
         display flex
         align-items center
         justify-content center
-        width 26px
-        height 26px
-        border-radius 8px
-        border 1.5px solid var(--accent)
-        color var(--accent)
-        font-family "Fredoka", ui-rounded, sans-serif
-        font-weight 700
-        font-size 0.85rem
-
-    @media only screen and (max-width 640px)
-        bottom 16%
-        font-size 0.8rem
-        padding 8px 14px
-
-        &__key
-            width 22px
-            height 22px
+        width 22px
+        height 22px
+        border 1px solid lime
+        color lime
+        font-family font-mono
+        font-weight 500
+        font-size 0.72rem
 
 // =============================================================================
-// Reduced motion — collapse CSS-driven motion to a static, instant state. The
-// JS motion layer (MotionDirector) mirrors this, so the two stay in lockstep.
+// Reduced Motion & Static 16:9 Print / PDF Export (?print=1)
 // =============================================================================
 
 @media (prefers-reduced-motion: reduce)
-    .presentation
-        transition none
-
-        .challenge__ping
-            animation none
-
-        .demo__dot
-            animation none
-
+    .presentation,
+    .presentation__scrim,
     .station-prompt
         transition none
+
+@page
+    size 1920px 1080px
+    margin 0
+
+html.is-print-deck,
+html.is-print-deck body
+    position static !important
+    top auto !important
+    left auto !important
+    width 1920px !important
+    height auto !important
+    margin 0
+    padding 0
+    overflow visible !important
+    background navy
+    -webkit-print-color-adjust exact
+    print-color-adjust exact
+
+.print-deck
+    display block
+    width 1920px
+
+.print-slide.presentation
+    position relative
+    inset auto
+    width 1920px
+    height 1080px
+    overflow hidden
+    opacity 1
+    visibility visible
+    break-after page
+    page-break-after always
+    break-inside avoid
+    page-break-inside avoid
+
+    &:last-child
+        break-after auto
+        page-break-after auto
+
+    .hero__planet-stage
+        width 390px
+        height 390px

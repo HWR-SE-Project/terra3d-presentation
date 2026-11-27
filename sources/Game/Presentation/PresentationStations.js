@@ -90,24 +90,24 @@ export const INTERACTION_RADIUS = 3.2
 const RAW = {
     konzept: {
         title: 'Konzept',
-        slideRange: [ 1, 5 ],
+        slideRange: [ 1, 4 ],
         center: vec2(35.27, -40.61),
         landmark: vec2(32.46, -33.18), // faceted gem stack
-        accent: '#c0f66b',
+        accent: '#bae862',
     },
     gameplay: {
-        title: 'Gameplay',
-        slideRange: [ 6, 10 ],
+        title: 'Team & Produkt',
+        slideRange: [ 5, 9 ],
         center: vec2(67.99, 6.62),
         landmark: vec2(67.03, 3.15), // origami Earth globe
-        accent: '#57c4e8',
+        accent: '#bae862',
     },
     engineering: {
         title: 'Engineering',
-        slideRange: [ 11, 16 ],
+        slideRange: [ 10, 13 ],
         center: vec2(-1.67, 20.73),
         landmark: vec2(-2.97, 20.13), // pulsing core
-        accent: '#ffb45e',
+        accent: '#bae862',
         // The generic center->landmark offset lands inside a physical
         // fence collider guarding this zone's forge clearing (found via
         // live Rapier castShape probing in the browser - see Phase 4
@@ -116,11 +116,11 @@ const RAW = {
         standPointOverride: vec2(-0.02, 20.65),
     },
     qualitaet: {
-        title: 'Qualität',
-        slideRange: [ 17, 21 ],
+        title: 'Aufwand & Qualität',
+        slideRange: [ 14, 20 ],
         center: vec2(-9.59, 70.70),
         landmark: vec2(-11.41, 69.45), // ring + checkmark
-        accent: '#c0f66b',
+        accent: '#bae862',
     },
 }
 
